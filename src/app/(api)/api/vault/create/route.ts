@@ -24,6 +24,10 @@ export async function POST(
             return new NextResponse("Invalid event type", { status: 400 });
         }
 
+        console.log({
+            id, username, phone_numbers, updated_at, last_sign_in_at
+        })
+
         const user = prisma.user.create({
             data: {
                 id: id,
