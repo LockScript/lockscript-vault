@@ -1,113 +1,237 @@
-import Image from "next/image";
+/**
+ * v0 by Vercel.
+ * @see https://v0.dev/t/SAqzUqktarh
+ * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
+ */
+"use client"
 
-export default function Home() {
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { SVGProps, useState } from "react"
+import { CopyIcon, CreditCardIcon, KeyIcon, MenuIcon, PinIcon, PlusIcon, SearchIcon, StickyNoteIcon } from "lucide-react"
+import { UserButton } from "@clerk/nextjs"
+
+export default function Component() {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [activeTab, setActiveTab] = useState("credentials")
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+  }
+  const toggleMobileNav = () => {
+    setIsMobileNavOpen(!isMobileNavOpen)
+  }
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="grid grid-cols-[240px_1fr] h-screen">
+      <div className="bg-gray-100 dark:bg-gray-800 p-6 space-y-6 relative">
+        <div className="flex items-center justify-between">
+          <UserButton />
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-500 via-purple-400 to-purple-600 text-transparent bg-clip-text">LockScript</h1>
+          <div className="block md:hidden">
+            <Button variant="ghost" size="icon" className="absolute top-6 right-6" onClick={toggleMobileNav}>
+              <MenuIcon className="h-6 w-6" />
+              <span className="sr-only">Toggle mobile navigation</span>
+            </Button>
+            {isMobileNavOpen && (
+              <div className="absolute top-16 left-0 right-0 bg-gray-100 dark:bg-gray-800 p-6 space-y-2">
+                <Button
+                  variant={activeTab === "credentials" ? "link" : "ghost"}
+                  className="w-full justify-start"
+                  onClick={() => handleTabChange("credentials")}
+                >
+                  <KeyIcon className="mr-2 h-4 w-4" />
+                  Credentials
+                </Button>
+                <Button
+                  variant={activeTab === "cards" ? "link" : "ghost"}
+                  className="w-full justify-start"
+                  onClick={() => handleTabChange("cards")}
+                >
+                  <CreditCardIcon className="mr-2 h-4 w-4" />
+                  Cards
+                </Button>
+                <Button
+                  variant={activeTab === "notes" ? "link" : "ghost"}
+                  className="w-full justify-start"
+                  onClick={() => handleTabChange("notes")}
+                >
+                  <StickyNoteIcon className="mr-2 h-4 w-4" />
+                  Secure Notes
+                </Button>
+                <Button
+                  variant={activeTab === "pins" ? "link" : "ghost"}
+                  className="w-full justify-start"
+                  onClick={() => handleTabChange("pins")}
+                >
+                  <PinIcon className="mr-2 h-4 w-4" />
+                  Pins
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+        <nav className="space-y-2 hidden md:block">
+          <Button
+            variant={activeTab === "credentials" ? "link" : "ghost"}
+            className="w-full justify-start"
+            onClick={() => handleTabChange("credentials")}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+            <KeyIcon className="mr-2 h-4 w-4" />
+            Credentials
+          </Button>
+          <Button
+            variant={activeTab === "cards" ? "link" : "ghost"}
+            className="w-full justify-start"
+            onClick={() => handleTabChange("cards")}
+          >
+            <CreditCardIcon className="mr-2 h-4 w-4" />
+            Cards
+          </Button>
+          <Button
+            variant={activeTab === "notes" ? "link" : "ghost"}
+            className="w-full justify-start"
+            onClick={() => handleTabChange("notes")}
+          >
+            <StickyNoteIcon className="mr-2 h-4 w-4" />
+            Secure Notes
+          </Button>
+          <Button
+            variant={activeTab === "pins" ? "link" : "ghost"}
+            className="w-full justify-start"
+            onClick={() => handleTabChange("pins")}
+          >
+            <PinIcon className="mr-2 h-4 w-4" />
+            Pins
+          </Button>
+        </nav>
+      </div>
+      <div className="p-8 overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div className="relative w-full max-w-md">
+            <Input
+              type="text"
+              placeholder="Search passwords..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
             />
-          </a>
+            <Button variant="ghost" size="icon" className="absolute top-1/2 right-2 -translate-y-1/2">
+              <SearchIcon className="h-4 w-4" />
+              <span className="sr-only">Search</span>
+            </Button>
+          </div>
+          <Button>
+            <PlusIcon className="mr-2 h-4 w-4" />
+            Add Password
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {activeTab === "credentials" && (
+            <>
+              <Card>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">GitHub</div>
+                    <div className="text-gray-500 dark:text-gray-400">jdoe@example.com</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">Amazon</div>
+                    <div className="text-gray-500 dark:text-gray-400">jdoe@example.com</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">Twitter</div>
+                    <div className="text-gray-500 dark:text-gray-400">jdoe@example.com</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">Facebook</div>
+                    <div className="text-gray-500 dark:text-gray-400">jdoe@example.com</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">Instagram</div>
+                    <div className="text-gray-500 dark:text-gray-400">jdoe@example.com</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">Spotify</div>
+                    <div className="text-gray-500 dark:text-gray-400">jdoe@example.com</div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+            </>
+          )}
+          {activeTab === "cards" && <></>}
+          {activeTab === "notes" && <></>}
+          {activeTab === "pins" && <></>}
         </div>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    </div>
+  )
 }
