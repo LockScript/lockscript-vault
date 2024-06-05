@@ -16,8 +16,5 @@ datasource db {
 model User {
   id              String   @unique
   username        String   @unique
-  phone_number    String?
-  updated_at      BigInt
-  last_sign_in_at BigInt
   vault           String
 }

@@ -11,9 +11,6 @@ export async function POST(
         const {
             data: {
                 id,
-                last_sign_in_at,
-                phone_numbers,
-                updated_at,
                 username,
             },
             object: eventObject,
@@ -25,21 +22,18 @@ export async function POST(
         }
 
         console.log({
-            id, username, phone_numbers, updated_at, last_sign_in_at
+            id, username
         })
 
         const user = prisma.user.create({
             data: {
                 id: id,
                 username: username,
-                phone_number: phone_numbers[0],
-                updated_at: updated_at,
-                last_sign_in_at: last_sign_in_at,
                 vault: ""
             }
         })
 
-        return new NextResponse(JSON.stringify({ message: "User created successfully!", user }), { status: 200 });
+        return NextResponse.json(user)
     } catch (error) {
         console.error("Error creating user:", error);
         return new NextResponse("Internal Server Error", { status: 500 });
