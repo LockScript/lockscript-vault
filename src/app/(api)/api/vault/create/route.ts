@@ -8,6 +8,8 @@ export async function POST(
     try {
         const body = await req.json();
 
+        console.log(body)
+
         const {
             data: {
                 id,
@@ -25,13 +27,17 @@ export async function POST(
             id, username
         })
 
-        const user = prisma.user.create({
+        const user = await prisma.user.create({
             data: {
                 id: id,
                 username: username,
-                vault: ""
-            }
+                vault: "",
+                updated_at: new Date(),  // Set the updated_at field here
+                last_sign_in_at: new Date(),
+            },
         })
+
+        console.log(user)
 
         return NextResponse.json(user)
     } catch (error) {

@@ -14,7 +14,10 @@ datasource db {
 }
 
 model User {
-  id              String   @unique
-  username        String   @unique
+  id              String   @id @default(uuid())
+  username        String
   vault           String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now())
+  last_sign_in_at DateTime @default(now())
 }
