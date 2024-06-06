@@ -19,12 +19,21 @@ export async function POST(
 
         const vaultString = JSON.stringify(vault);
 
-        // Encrypt the vault string
-        const ciphertext = CryptoJS.AES.encrypt(vaultString, 'secret key').toString();
+        const dbUser = await prisma.user.findUnique({
+            where: {
+                id: user?.id,
+            }
+        })
+
+        if (!dbUser) {
+            return new NextResponse("User not found in DB", { status: 500 })
+        }
+
+        const ciphertext = CryptoJS.AES.encrypt(vaultString, dbUser?.vaultKey).toString();
 
         const userVault = await prisma.user.update({
             where: { id: user?.id },
-            data: { vault: vault },
+            data: { vault: ciphertext },
         })
 
         return NextResponse.json(userVault)
