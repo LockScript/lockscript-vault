@@ -10,9 +10,9 @@ export const updateVault = async (vault: VaultItem[]) => {
 };
 
 export const decryptVault = (encryptedVault: string, vaultKey: string) => {
-    const decryptedData = CryptoJS.AES.decrypt(encryptedVault, vaultKey).toString(
-        CryptoJS.enc.Utf8
-    );
+    // const decryptedData = CryptoJS.AES.decrypt(encryptedVault, vaultKey).toString(
+    //     CryptoJS.enc.Utf8
+    // );
 
-    return decryptedData;
+    return encryptedVault;
 };

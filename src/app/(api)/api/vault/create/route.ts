@@ -30,10 +30,6 @@ export async function POST(
             data: {
                 id: id,
                 username: username,
-                vault: "",
-                vaultKey: vaultKey,
-                updated_at: new Date(),
-                last_sign_in_at: new Date(),
             },
         })
 

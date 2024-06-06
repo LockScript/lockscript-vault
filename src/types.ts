@@ -3,24 +3,24 @@ interface PasswordItem {
     website: string;
     username: string;
     password: string;
-  }
-  
-  interface CardItem {
+}
+
+interface CardItem {
     type: "card";
     cardNumber: string;
     expiryDate: string;
     cvv: string;
     cardHolderName: string;
-  }
-  
-  interface PinItem {
+}
+
+interface PinItem {
     type: "pin";
     pin: string;
-  }
-  
-  interface NoteItem {
+}
+
+interface NoteItem {
     type: "note";
     note: string;
-  }
-  
-  type VaultItem = PasswordItem | CardItem | PinItem | NoteItem;
+}
+
+type VaultItem = PasswordItem | CardItem | PinItem | NoteItem;

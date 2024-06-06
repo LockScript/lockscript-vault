@@ -7,6 +7,7 @@
 
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { decryptVault, updateVault } from "@/vault";
 import { User } from "@prisma/client";
@@ -16,6 +17,14 @@ import { useMutation, useQuery } from "react-query";
 
 const fetchUser = async () => {
   const res = await fetch("/api/user");
+  if (!res.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return res.json();
+};
+
+const fetchVaultItems = async () => {
+  const res = await fetch("/api/vault");
   if (!res.ok) {
     throw new Error("Network response was not ok");
   }
@@ -37,24 +46,11 @@ export default function Home() {
   const mutation = useMutation(updateVault);
 
   const { data: user, isLoading, isError } = useQuery<User>("user", fetchUser);
-
-  const [vault, setVault] = useState<VaultItem[]>([]);
-
-
-  useEffect(() => {
-    setVault(
-      JSON.parse(
-        JSON.stringify(decryptVault(user?.vault ?? "", user?.vaultKey ?? ""))
-      )
-    );
-  }, [user]);
-
-  const addVaultItem = (item: VaultItem) => {
-    setVault(JSON.parse(JSON.stringify([...vault, item])));
-    mutation.mutate(vault);
-  };
-
-  if (vault) console.log(JSON.parse(JSON.stringify(vault)));
+  const {
+    data: vaultItems,
+    isLoading: isLoadingVaultItems,
+    isError: isErrorVaultItems,
+  } = useQuery("vaultItems", fetchVaultItems);
 
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
@@ -83,21 +79,15 @@ export default function Home() {
               <span className="sr-only">Search</span>
             </Button>
           </div>
-          <Button
-            onClick={() =>
-              addVaultItem({
-                type: "password",
-                website: "www.newsite.com",
-                username: "newUser",
-                password: "newPassword123",
-              })
-            }
-          >
+          <Button>
             <PlusIcon className="mr-2 h-4 w-4" />
             Add Password
           </Button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {vaultItems &&
+            vaultItems.map((item: VaultItem) => <Card key={item.type}></Card>)}
+        </div>
       </div>
     </div>
   );

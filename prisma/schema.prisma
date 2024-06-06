@@ -14,11 +14,47 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(uuid())
-  username        String   @unique
-  vault           String
-  vaultKey        String
-  created_at      DateTime @default(now())
-  updated_at      DateTime @default(now())
-  last_sign_in_at DateTime @default(now())
+  id            Int            @id @default(autoincrement())
+  username      String         @unique
+  passwordItems PasswordItem[]
+  cardItems     CardItem[]
+  pinItems      PinItem[]
+  noteItems     NoteItem[]
+}
+
+model PasswordItem {
+  id       Int    @id @default(autoincrement())
+  type     String @default("password")
+  website  String
+  username String
+  password String
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+model CardItem {
+  id             Int    @id @default(autoincrement())
+  type           String @default("card")
+  cardNumber     String
+  expiryDate     String
+  cvv            String
+  cardHolderName String
+  userId         Int
+  user           User   @relation(fields: [userId], references: [id])
+}
+
+model PinItem {
+  id     Int    @id @default(autoincrement())
+  type   String @default("pin")
+  pin    String
+  userId Int
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model NoteItem {
+  id     Int    @id @default(autoincrement())
+  type   String @default("note")
+  note   String
+  userId Int
+  user   User   @relation(fields: [userId], references: [id])
 }
