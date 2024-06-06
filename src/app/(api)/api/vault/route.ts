@@ -10,12 +10,16 @@ export async function GET(
     try {
         const user = await currentUser()
 
+        if (!user) {
+            return new NextResponse("Not Authenticated", { status: 401 });
+        }
+
         const vaultUser = await prisma.user.findUnique({
             where: {
                 id: user?.id,
             }
         })
-        
+
         return NextResponse.json(vaultUser?.vault)
     } catch (error) {
         console.error("Error getting vault:", error);

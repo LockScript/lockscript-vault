@@ -7,8 +7,8 @@ export async function POST(
 ) {
     try {
         const body = await req.json();
-
-        console.log(body)
+        const referer = req.headers.get('Referer');
+        console.log('Request came from:', referer);
 
         const {
             data: {
@@ -23,21 +23,15 @@ export async function POST(
             return new NextResponse("Invalid event type", { status: 400 });
         }
 
-        console.log({
-            id, username
-        })
-
         const user = await prisma.user.create({
             data: {
                 id: id,
                 username: username,
                 vault: "",
-                updated_at: new Date(),  // Set the updated_at field here
+                updated_at: new Date(),
                 last_sign_in_at: new Date(),
             },
         })
-
-        console.log(user)
 
         return NextResponse.json(user)
     } catch (error) {
