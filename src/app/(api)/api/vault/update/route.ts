@@ -1,6 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import CryptoJS from 'crypto-js';
 
 const prisma = new PrismaClient()
 
@@ -15,6 +16,11 @@ export async function POST(
         if (!user) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
+
+        const vaultString = JSON.stringify(vault);
+
+        // Encrypt the vault string
+        const ciphertext = CryptoJS.AES.encrypt(vaultString, 'secret key').toString();
 
         const userVault = await prisma.user.update({
             where: { id: user?.id },

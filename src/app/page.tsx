@@ -11,8 +11,18 @@ import { Card, CardContent } from "@/components/ui/card"
 import { SVGProps, useState } from "react"
 import { CopyIcon, CreditCardIcon, KeyIcon, MenuIcon, PinIcon, PlusIcon, SearchIcon, StickyNoteIcon } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
+import { useQuery } from "react-query"
+import { User } from "@prisma/client"
 
-export default function Component() {
+const fetchUser = async () => {
+  const res = await fetch("/api/user");
+  if (!res.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return res.json();
+};
+
+export default function Home() {
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState("credentials")
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
@@ -22,9 +32,14 @@ export default function Component() {
   const toggleMobileNav = () => {
     setIsMobileNavOpen(!isMobileNavOpen)
   }
+
+  const { data: user, isLoading, isError } = useQuery<User>("user", fetchUser);
+
+  console.log(user)
+
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
-      <div className="bg-gray-100 dark:bg-gray-800 p-6 space-y-6 relative">
+      <div className="bg-gray-100 dark:bg-gray-8s00 p-6 space-y-6 relative">
         <div className="flex items-center justify-between">
           <UserButton />
           <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-500 via-purple-400 to-purple-600 text-transparent bg-clip-text">LockScript</h1>
