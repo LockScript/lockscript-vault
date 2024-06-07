@@ -7,11 +7,11 @@
 
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { updateVault } from "@/vault";
 import { User } from "@prisma/client";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { CopyIcon, PlusIcon, SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -86,6 +86,10 @@ export default function Home() {
     isError: isErrorVaultItems,
   } = useQuery("vaultItems", fetchVaultItems);
 
+  console.log(vaultItems);
+
+  console;
+
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
       <Sidebar
@@ -120,7 +124,26 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {vaultItems &&
-            vaultItems.map((item: VaultItem) => <Card key={item.type}></Card>)}
+            vaultItems.passwordItems.map((item: PasswordItem) => (
+              <Card key={item.password}>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">Spotify</div>
+                    <div className="text-gray-500 dark:text-gray-400">
+                      {item.username}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
         </div>
       </div>
     </div>
