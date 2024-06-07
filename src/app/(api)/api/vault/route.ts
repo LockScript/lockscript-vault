@@ -11,7 +11,7 @@ export async function POST(req: Request) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
-        const userId = Number(user.id);
+        const userId = user.id;
         const { type, data } = await req.json();
 
         if (!type || !data) {
@@ -73,7 +73,7 @@ export async function GET(req: Request) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
-        const userId = Number(user.id);
+        const userId = user.id;
 
         const passwordItems = await prisma.passwordItem.findMany({
             where: {

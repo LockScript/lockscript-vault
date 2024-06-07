@@ -19,7 +19,7 @@ export async function POST(
 
         const dbUser = await prisma.user.findUnique({
             where: {
-                id: Number(user?.id),
+                id: user?.id,
             }
         })
 
