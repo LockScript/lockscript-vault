@@ -13,7 +13,7 @@ export async function POST(
         const { vault } = body;
         const user = await currentUser();
 
-        if (!user) {
+        if (!user || !user.id) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 

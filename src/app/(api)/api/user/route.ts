@@ -8,13 +8,13 @@ export async function GET(req: Request) {
     try {
         const user = await currentUser()
 
-        if (!user) {
+        if (!user || !user.id) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
         const dbUser = await prisma.user.findUnique({
             where: {
-                id: Number(user?.id),
+                id: Number(user.id),
             }
         })
 
