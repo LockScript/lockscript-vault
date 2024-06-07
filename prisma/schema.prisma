@@ -52,7 +52,7 @@ model PinItem {
 }
 
 model NoteItem {
-  id     Int    @id @default(autoincrement())
+  id     String @id @default(uuid())
   type   String @default("note")
   note   String
   userId String

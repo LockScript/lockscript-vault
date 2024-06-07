@@ -11,7 +11,6 @@ export async function POST(req: Request) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
-        const userId = user.id;
         const { type, data } = await req.json();
 
         if (!type || !data) {
@@ -25,7 +24,7 @@ export async function POST(req: Request) {
                 newItem = await prisma.passwordItem.create({
                     data: {
                         ...data,
-                        userId: userId,
+                        userId: user?.id,
                     },
                 });
                 break;
@@ -33,7 +32,7 @@ export async function POST(req: Request) {
                 newItem = await prisma.cardItem.create({
                     data: {
                         ...data,
-                        userId: userId,
+                        userId: user?.id,
                     },
                 });
                 break;
@@ -41,7 +40,7 @@ export async function POST(req: Request) {
                 newItem = await prisma.pinItem.create({
                     data: {
                         ...data,
-                        userId: userId,
+                        userId: user?.id,
                     },
                 });
                 break;
@@ -49,7 +48,7 @@ export async function POST(req: Request) {
                 newItem = await prisma.noteItem.create({
                     data: {
                         ...data,
-                        userId: userId,
+                        userId: user?.id,
                     },
                 });
                 break;
@@ -73,29 +72,27 @@ export async function GET(req: Request) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
-        const userId = user.id;
-
         const passwordItems = await prisma.passwordItem.findMany({
             where: {
-                userId: userId,
+                userId: user?.id,
             }
         })
 
         const cardItems = await prisma.cardItem.findMany({
             where: {
-                userId: userId,
+                userId: user?.id,
             }
         })
 
         const pinItems = await prisma.pinItem.findMany({
             where: {
-                userId: userId,
+                userId: user?.id,
             }
         })
 
         const noteItems = await prisma.noteItem.findMany({
             where: {
-                userId: userId,
+                userId: user?.id,
             }
         })
 
