@@ -150,9 +150,9 @@ export default function Home() {
               <span className="sr-only">Search</span>
             </Button>
           </div>
-          <Dialog>
+          <Dialog open={isModalOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={() => setIsModalOpen(true)}>
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Add Password
               </Button>
@@ -222,14 +222,14 @@ export default function Home() {
           {activeTab === "credentials" &&
             vaultItems &&
             vaultItems.passwordItems.map((item: PasswordItem) => (
-              <PasswordCard item={item} key={`${item.type}-${item.password}`} />
+              <PasswordCard item={item} key={item.id} />
             ))}
           {activeTab === "cards" &&
             vaultItems &&
             vaultItems.cardItems.map((item: CardItem) => (
               <PaymentCard
                 item={item}
-                key={`${item.type}-${item.cardNumber}`}
+                key={item.id}
               />
             ))}
           {activeTab === "notes" && <></>}
