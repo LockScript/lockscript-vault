@@ -9,11 +9,11 @@ import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { decryptVault, updateVault } from "@/vault";
+import { updateVault } from "@/vault";
 import { User } from "@prisma/client";
 import { PlusIcon, SearchIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "react-query";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 const fetchUser = async () => {
   const res = await fetch("/api/user");
@@ -31,10 +31,39 @@ const fetchVaultItems = async () => {
   return res.json();
 };
 
+const addDummyDataToVault = async () => {
+  const response = await fetch("/api/vault", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      type: "password",
+      data: {
+        website: "example.com",
+        username: "dummyuser",
+        password: "dummypassword123",
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to add dummy data");
+  }
+
+  return response.json();
+};
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("credentials");
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    website: "",
+    username: "",
+    password: "",
+  });
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -43,7 +72,12 @@ export default function Home() {
     setIsMobileNavOpen(!isMobileNavOpen);
   };
 
-  const mutation = useMutation(updateVault);
+  const queryClient = useQueryClient();
+  const mutation = useMutation(addDummyDataToVault, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("vaultItems");
+    },
+  });
 
   const { data: user, isLoading, isError } = useQuery<User>("user", fetchUser);
   const {
@@ -79,7 +113,7 @@ export default function Home() {
               <span className="sr-only">Search</span>
             </Button>
           </div>
-          <Button>
+          <Button onClick={() => mutation.mutate()}>
             <PlusIcon className="mr-2 h-4 w-4" />
             Add Password
           </Button>
