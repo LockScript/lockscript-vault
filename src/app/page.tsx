@@ -86,10 +86,6 @@ export default function Home() {
     isError: isErrorVaultItems,
   } = useQuery("vaultItems", fetchVaultItems);
 
-  console.log(vaultItems);
-
-  console;
-
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
       <Sidebar
@@ -123,7 +119,8 @@ export default function Home() {
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {vaultItems &&
+          {activeTab === "credentials" &&
+            vaultItems &&
             vaultItems.passwordItems.map((item: PasswordItem) => (
               <Card key={item.password}>
                 <CardContent className="flex items-center justify-between">
@@ -144,6 +141,30 @@ export default function Home() {
                 </CardContent>
               </Card>
             ))}
+          {activeTab === "cards" &&
+            vaultItems &&
+            vaultItems.passwordItems.map((item: CardItem) => (
+              <Card key={item.cardNumber}>
+                <CardContent className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium pt-4">{item.expiryDate}</div>
+                    <div className="text-gray-500 dark:text-gray-400">
+                      {item.cardHolderName}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <CopyIcon className="h-4 w-4" />
+                    <span className="sr-only">Copy password</span>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          {activeTab === "notes" && <></>}
+          {activeTab === "pins" && <></>}
         </div>
       </div>
     </div>
