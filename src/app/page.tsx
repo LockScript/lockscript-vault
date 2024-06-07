@@ -5,6 +5,7 @@
  */
 "use client";
 
+import PasswordCard from "@/components/password-card";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -31,7 +32,11 @@ const fetchVaultItems = async () => {
   return res.json();
 };
 
-const addDummyDataToVault = async () => {
+const addPasswordToVault = async (
+  website: string,
+  username: string,
+  password: string
+) => {
   const response = await fetch("/api/vault", {
     method: "POST",
     headers: {
@@ -40,9 +45,9 @@ const addDummyDataToVault = async () => {
     body: JSON.stringify({
       type: "password",
       data: {
-        website: "example.com",
-        username: "dummyuser",
-        password: "dummypassword123",
+        website: website,
+        username: username,
+        password: password,
       },
     }),
   });
@@ -73,11 +78,19 @@ export default function Home() {
   };
 
   const queryClient = useQueryClient();
-  const mutation = useMutation(addDummyDataToVault, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("vaultItems");
-    },
-  });
+  const mutation = useMutation(
+    () =>
+      addPasswordToVault(
+        formData.website,
+        formData.username,
+        formData.password
+      ),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("vaultItems");
+      },
+    }
+  );
 
   const { data: user, isLoading, isError } = useQuery<User>("user", fetchUser);
   const {
@@ -122,24 +135,7 @@ export default function Home() {
           {activeTab === "credentials" &&
             vaultItems &&
             vaultItems.passwordItems.map((item: PasswordItem) => (
-              <Card key={item.password}>
-                <CardContent className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium pt-4">Spotify</div>
-                    <div className="text-gray-500 dark:text-gray-400">
-                      {item.username}
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-                  >
-                    <CopyIcon className="h-4 w-4" />
-                    <span className="sr-only">Copy password</span>
-                  </Button>
-                </CardContent>
-              </Card>
+              <PasswordCard item={item} key={`${item.type}-${item.password}`} />
             ))}
           {activeTab === "cards" &&
             vaultItems &&
@@ -147,7 +143,9 @@ export default function Home() {
               <Card key={item.cardNumber}>
                 <CardContent className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium pt-4">{item.expiryDate}</div>
+                    <div className="font-medium pt-4">
+                      {item.cardNumber} | {item.expiryDate}
+                    </div>
                     <div className="text-gray-500 dark:text-gray-400">
                       {item.cardHolderName}
                     </div>
