@@ -143,7 +143,7 @@ export default function Home() {
             ))}
           {activeTab === "cards" &&
             vaultItems &&
-            vaultItems.passwordItems.map((item: CardItem) => (
+            vaultItems.cardItems.map((item: CardItem) => (
               <Card key={item.cardNumber}>
                 <CardContent className="flex items-center justify-between">
                   <div>
