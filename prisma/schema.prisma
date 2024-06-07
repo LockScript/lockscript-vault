@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
+  id            String         @id @default(uuid())
   username      String         @unique
   passwordItems PasswordItem[]
   cardItems     CardItem[]
@@ -23,31 +23,31 @@ model User {
 }
 
 model PasswordItem {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(uuid())
   type     String @default("password")
   website  String
   username String
   password String
-  userId   Int
+  userId   String
   user     User   @relation(fields: [userId], references: [id])
 }
 
 model CardItem {
-  id             Int    @id @default(autoincrement())
+  id             String @id @default(uuid())
   type           String @default("card")
   cardNumber     String
   expiryDate     String
   cvv            String
   cardHolderName String
-  userId         Int
+  userId         String
   user           User   @relation(fields: [userId], references: [id])
 }
 
 model PinItem {
-  id     Int    @id @default(autoincrement())
+  id     String @id @default(uuid())
   type   String @default("pin")
   pin    String
-  userId Int
+  userId String
   user   User   @relation(fields: [userId], references: [id])
 }
 
@@ -55,6 +55,6 @@ model NoteItem {
   id     Int    @id @default(autoincrement())
   type   String @default("note")
   note   String
-  userId Int
+  userId String
   user   User   @relation(fields: [userId], references: [id])
 }
