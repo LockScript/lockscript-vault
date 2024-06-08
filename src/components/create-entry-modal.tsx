@@ -1,4 +1,5 @@
 import { PlusIcon } from "lucide-react";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,10 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { useToast } from "./ui/use-toast";
 
 const CreateEntryModal = ({
   isModalOpen,

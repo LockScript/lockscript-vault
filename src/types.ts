@@ -1,5 +1,6 @@
 interface PasswordItem {
     id: string;
+    userId: string;
     type: "password";
     website: string;
     username: string;
@@ -8,6 +9,7 @@ interface PasswordItem {
 
 interface CardItem {
     id: string;
+    userId: string;
     type: "card";
     cardNumber: string;
     expiryDate: string;
@@ -17,12 +19,14 @@ interface CardItem {
 
 interface PinItem {
     id: string;
+    userId: string;
     type: "pin";
     pin: string;
 }
 
 interface NoteItem {
     id: string;
+    userId: string;
     type: "note";
     note: string;
 }

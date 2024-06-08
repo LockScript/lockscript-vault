@@ -27,35 +27,35 @@ export async function POST(
             return new NextResponse("User not found in DB", { status: 500 })
         }
 
-        // Iterate over each vault item and update it in the database
         for (const item of vault) {
+
             switch (item.type) {
                 case 'password':
                     await prisma.passwordItem.update({
-                        where: { id: item.id },
+                        where: { id: item.id, userId: user?.id },
                         data: item,
                     });
                     break;
                 case 'card':
                     await prisma.cardItem.update({
-                        where: { id: item.id },
+                        where: { id: item.id, userId: user?.id },
                         data: item,
                     });
                     break;
                 case 'pin':
                     await prisma.pinItem.update({
-                        where: { id: item.id },
+                        where: { id: item.id, userId: user?.id },
                         data: item,
                     });
                     break;
                 case 'note':
                     await prisma.noteItem.update({
-                        where: { id: item.id },
+                        where: { id: item.id, userId: user?.id },
                         data: item,
                     });
                     break;
                 default:
-                    console.error(`Unknown item type: ${item.type}`);
+                    return new NextResponse("Unknown item type.", { status: 400 })
             }
         }
 
