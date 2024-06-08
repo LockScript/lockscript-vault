@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { User } from "@prisma/client";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useState } from "react";
@@ -87,10 +88,10 @@ const addCardToVault = async (
         cardNumber,
         expiryDate,
         cvv,
-        cardHolderName
-      }
-    })
-  })
+        cardHolderName,
+      },
+    }),
+  });
 
   if (!response.ok) {
     throw new Error("Failed to add card to vault.");
@@ -166,12 +167,17 @@ export default function Home() {
 
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+
       <Sidebar
         isMobileNavOpen={isMobileNavOpen}
         toggleMobileNav={toggleMobileNav}
         activeTab={activeTab}
         handleTabChange={handleTabChange}
       />
+
       <div className="p-8 overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="relative w-full max-w-md">

@@ -16,6 +16,8 @@ datasource db {
 model User {
   id            String         @id @default(uuid())
   username      String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   passwordItems PasswordItem[]
   cardItems     CardItem[]
   pinItems      PinItem[]
@@ -23,38 +25,46 @@ model User {
 }
 
 model PasswordItem {
-  id       String @id @default(uuid())
-  type     String @default("password")
-  website  String
-  username String
-  password String
-  userId   String
-  user     User   @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  type      String   @default("password")
+  website   String
+  username  String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model CardItem {
-  id             String @id @default(uuid())
-  type           String @default("card")
+  id             String   @id @default(uuid())
+  type           String   @default("card")
   cardNumber     String
   expiryDate     String
   cvv            String
   cardHolderName String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   userId         String
-  user           User   @relation(fields: [userId], references: [id])
+  user           User     @relation(fields: [userId], references: [id])
 }
 
 model PinItem {
-  id     String @id @default(uuid())
-  type   String @default("pin")
-  pin    String
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  type      String   @default("pin")
+  pin       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model NoteItem {
-  id     String @id @default(uuid())
-  type   String @default("note")
-  note   String
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  type      String   @default("note")
+  note      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
