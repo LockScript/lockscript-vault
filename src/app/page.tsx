@@ -64,7 +64,36 @@ const addPasswordToVault = async (
   });
 
   if (!response.ok) {
-    throw new Error("Failed to add dummy data");
+    throw new Error("Failed to add password to vault.");
+  }
+
+  return response.json();
+};
+
+const addCardToVault = async (
+  cardNumber: string,
+  expiryDate: string,
+  cvv: string,
+  cardHolderName: string
+) => {
+  const response = await fetch("/api/vault", {
+    method: "POST",
+    headers: {
+      "Content=Type": "application/json",
+    },
+    body: JSON.stringify({
+      type: "card",
+      data: {
+        cardNumber,
+        expiryDate,
+        cvv,
+        cardHolderName
+      }
+    })
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to add card to vault.");
   }
 
   return response.json();
@@ -125,10 +154,15 @@ export default function Home() {
       toast({
         title: "Empty Fields!",
         description: `All fields are required. Please fill in all fields.`,
-        
       });
     }
   };
+
+  const filteredPasswordItems = searchTerm
+    ? vaultItems?.passwordItems.filter((item: PasswordItem) =>
+        item.website.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : vaultItems?.passwordItems;
 
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
@@ -167,10 +201,11 @@ export default function Home() {
             activeTab={activeTab}
           />
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeTab === "credentials" &&
-            vaultItems &&
-            vaultItems.passwordItems.map((item: PasswordItem) => (
+            filteredPasswordItems &&
+            filteredPasswordItems.map((item: PasswordItem) => (
               <PasswordCard item={item} key={item.id} />
             ))}
           {activeTab === "cards" &&
