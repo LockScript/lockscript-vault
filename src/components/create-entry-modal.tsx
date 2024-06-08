@@ -1,4 +1,3 @@
-import { Label } from "@radix-ui/react-label";
 import { PlusIcon } from "lucide-react";
 import {
   Dialog,
@@ -11,6 +10,7 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 const CreateEntryModal = ({
   isModalOpen,
