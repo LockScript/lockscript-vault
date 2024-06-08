@@ -104,7 +104,6 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("credentials");
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     website: "",
     username: "",
@@ -149,7 +148,6 @@ export default function Home() {
       formData.password.trim() !== ""
     ) {
       mutation.mutate();
-      setIsModalOpen(false);
       setFormData({ website: "", username: "", password: "" });
     } else {
       toast({
@@ -199,8 +197,6 @@ export default function Home() {
           </div>
 
           <CreateEntryModal
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
             formData={formData}
             setFormData={setFormData}
             handleSave={handleSave}

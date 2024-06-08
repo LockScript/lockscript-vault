@@ -2,6 +2,7 @@ import { PlusIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -13,15 +14,11 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
 const CreateEntryModal = ({
-  isModalOpen,
-  setIsModalOpen,
   formData,
   setFormData,
   handleSave,
   activeTab,
 }: {
-  isModalOpen: boolean;
-  setIsModalOpen: (value: boolean) => void;
   formData: { website: string; username: string; password: string };
   setFormData: (value: {
     website: string;
@@ -34,9 +31,9 @@ const CreateEntryModal = ({
   return (
     <>
       {activeTab === "credentials" && (
-        <Dialog open={isModalOpen}>
+        <Dialog>
           <DialogTrigger asChild>
-            <Button onClick={() => setIsModalOpen(true)}>
+            <Button>
               <PlusIcon className="mr-2 h-4 w-4" />
               Add Password
             </Button>
@@ -86,6 +83,7 @@ const CreateEntryModal = ({
                   id="password"
                   className="col-span-3"
                   required
+                  type="password"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
@@ -94,7 +92,14 @@ const CreateEntryModal = ({
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleSave}>Save changes</Button>
+              <DialogClose asChild>
+                <Button className="w-full">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button className="w-full" onClick={handleSave}>Save changes</Button>
+              </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>
