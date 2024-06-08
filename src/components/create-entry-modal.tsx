@@ -11,6 +11,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useToast } from "./ui/use-toast";
 
 const CreateEntryModal = ({
   isModalOpen,
@@ -33,7 +34,7 @@ const CreateEntryModal = ({
 }) => {
   return (
     <>
-      {activeTab === "passwords" && (
+      {activeTab === "credentials" && (
         <Dialog open={isModalOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => setIsModalOpen(true)}>

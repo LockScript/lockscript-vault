@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider, RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { QueryProvider } from "@/providers/query-client";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
       <ClerkProvider>
         <html lang="en">
           <body className={inter.className}>
+            <Toaster />
             <header>
               <SignedOut>
                 <RedirectToSignIn />

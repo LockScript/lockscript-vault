@@ -1,8 +1,12 @@
 import { CopyIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
 
-const PaymentCard = ({item}: {item: CardItem}) => {
+const PaymentCard = ({ item }: { item: CardItem }) => {
+  const { toast } = useToast();
+
   return (
     <Card className="shadow-md p-4 rounded-lg">
       <CardContent className="flex items-center justify-between">

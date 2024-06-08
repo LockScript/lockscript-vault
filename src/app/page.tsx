@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 import { User } from "@prisma/client";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { useState } from "react";
@@ -80,6 +81,8 @@ export default function Home() {
     password: "",
   });
 
+  const { toast } = useToast();
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
@@ -119,7 +122,11 @@ export default function Home() {
       setIsModalOpen(false);
       setFormData({ website: "", username: "", password: "" });
     } else {
-      alert("All fields are required");
+      toast({
+        title: "Empty Fields!",
+        description: `All fields are required. Please fill in all fields.`,
+        
+      });
     }
   };
 
