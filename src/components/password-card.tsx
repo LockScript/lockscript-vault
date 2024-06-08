@@ -88,12 +88,6 @@ const PasswordCard = ({ item }: { item: PasswordItem }) => {
 
   return (
     <Card className="relative shadow-md p-4 rounded-lg">
-      <button
-        className="absolute top-2 right-2 text-black opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-        aria-label="Close"
-      >
-        X
-      </button>
       <CardContent className="flex items-center justify-between space-x-4">
         <div className="space-y-2">
           {isEditing ? (
