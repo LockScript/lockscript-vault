@@ -5,6 +5,7 @@
  */
 "use client";
 
+import CreateEntryModal from "@/components/create-entry-modal";
 import PasswordCard from "@/components/password-card";
 import PaymentCard from "@/components/payment-card";
 import Sidebar from "@/components/sidebar";
@@ -119,7 +120,6 @@ export default function Home() {
       setFormData({ website: "", username: "", password: "" });
     } else {
       alert("All fields are required");
-      console.log("[FORMDATA]: " + formData.website.trim(), formData.username.trim(), formData.password.trim())
     }
   };
 
@@ -150,73 +150,15 @@ export default function Home() {
               <span className="sr-only">Search</span>
             </Button>
           </div>
-          <Dialog open={isModalOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setIsModalOpen(true)}>
-                <PlusIcon className="mr-2 h-4 w-4" />
-                Add Password
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Edit profile</DialogTitle>
-                <DialogDescription>
-                  Make changes to your profile here. Click save when you&apos;re
-                  done.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Website
-                  </Label>
-                  <Input
-                    id="website"
-                    defaultValue="https://lockscript.dev"
-                    className="col-span-3"
-                    required
-                    value={formData.website}
-                    onChange={(e) =>
-                      setFormData({ ...formData, website: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="username" className="text-right">
-                    Username
-                  </Label>
-                  <Input
-                    id="username"
-                    defaultValue="cvs0"
-                    className="col-span-3"
-                    required
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="username" className="text-right">
-                    Password
-                  </Label>
-                  <Input
-                    id="password"
-                    defaultValue="hopefullysomethingsecure"
-                    className="col-span-3"
-                    required
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={handleSave}>Save changes</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+
+          <CreateEntryModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            formData={formData}
+            setFormData={setFormData}
+            handleSave={handleSave}
+            activeTab={activeTab}
+          />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeTab === "credentials" &&
@@ -227,10 +169,7 @@ export default function Home() {
           {activeTab === "cards" &&
             vaultItems &&
             vaultItems.cardItems.map((item: CardItem) => (
-              <PaymentCard
-                item={item}
-                key={item.id}
-              />
+              <PaymentCard item={item} key={item.id} />
             ))}
           {activeTab === "notes" && <></>}
           {activeTab === "pins" && <></>}
