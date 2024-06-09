@@ -5,26 +5,17 @@
  */
 "use client";
 
-import CreateEntryModal from "@/components/create-entry-modal";
+import CreateCardModal from "@/components/create-card-modal";
+import CreatePasswordModal from "@/components/create-password-modal";
 import PasswordCard from "@/components/password-card";
 import PaymentCard from "@/components/payment-card";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { User } from "@prisma/client";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -80,15 +71,15 @@ const addCardToVault = async (
   const response = await fetch("/api/vault", {
     method: "POST",
     headers: {
-      "Content=Type": "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       type: "card",
       data: {
-        cardNumber,
-        expiryDate,
-        cvv,
-        cardHolderName,
+        cardNumber: cardNumber,
+        expiryDate: expiryDate,
+        cvv: cvv,
+        cardHolderName: cardHolderName,
       },
     }),
   });
@@ -104,10 +95,17 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("credentials");
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [passwordFormData, setPasswordFormData] = useState({
     website: "",
     username: "",
     password: "",
+  });
+
+  const [cardFormData, setCardFormData] = useState({
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    cardHolderName: "",
   });
 
   const { toast } = useToast();
@@ -120,12 +118,27 @@ export default function Home() {
   };
 
   const queryClient = useQueryClient();
-  const mutation = useMutation(
+  const savePasswordMutation = useMutation(
     () =>
       addPasswordToVault(
-        formData.website,
-        formData.username,
-        formData.password
+        passwordFormData.website,
+        passwordFormData.username,
+        passwordFormData.password
+      ),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("vaultItems");
+      },
+    }
+  );
+
+  const saveCardMutation = useMutation(
+    () =>
+      addCardToVault(
+        cardFormData.cardNumber,
+        cardFormData.expiryDate,
+        cardFormData.cvv,
+        cardFormData.cardHolderName
       ),
     {
       onSuccess: () => {
@@ -141,14 +154,36 @@ export default function Home() {
     isError: isErrorVaultItems,
   } = useQuery("vaultItems", fetchVaultItems);
 
-  const handleSave = () => {
+  const handlePasswordSave = () => {
     if (
-      formData.website.trim() !== "" &&
-      formData.username.trim() !== "" &&
-      formData.password.trim() !== ""
+      passwordFormData.website.trim() !== "" &&
+      passwordFormData.username.trim() !== "" &&
+      passwordFormData.password.trim() !== ""
     ) {
-      mutation.mutate();
-      setFormData({ website: "", username: "", password: "" });
+      savePasswordMutation.mutate();
+      setPasswordFormData({ website: "", username: "", password: "" });
+    } else {
+      toast({
+        title: "Empty Fields!",
+        description: `All fields are required. Please fill in all fields.`,
+      });
+    }
+  };
+
+  const handleCardSave = () => {
+    if (
+      cardFormData.cardNumber.trim() !== "" &&
+      cardFormData.expiryDate.trim() !== "" &&
+      cardFormData.cvv.trim() !== "" &&
+      cardFormData.cardHolderName.trim() !== ""
+    ) {
+      saveCardMutation.mutate();
+      setCardFormData({
+        cardNumber: "",
+        expiryDate: "",
+        cvv: "",
+        cardHolderName: "",
+      });
     } else {
       toast({
         title: "Empty Fields!",
@@ -181,7 +216,9 @@ export default function Home() {
           <div className="relative w-full max-w-md">
             <Input
               type="text"
-              placeholder="Search passwords..."
+              placeholder={`Search ${
+                activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
+              }`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10"
@@ -196,28 +233,44 @@ export default function Home() {
             </Button>
           </div>
 
-          <CreateEntryModal
-            formData={formData}
-            setFormData={setFormData}
-            handleSave={handleSave}
-            activeTab={activeTab}
-          />
+          {activeTab === "credentials" && (
+            <CreatePasswordModal
+              formData={passwordFormData}
+              setFormData={setPasswordFormData}
+              handleSave={handlePasswordSave}
+              activeTab={activeTab}
+            />
+          )}
+          {activeTab === "cards" && (
+            <CreateCardModal
+              formData={cardFormData}
+              setFormData={setCardFormData}
+              handleSave={handleCardSave}
+              activeTab={activeTab}
+            />
+          )}
         </div>
+        <div>
+          {activeTab === "credentials" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredPasswordItems &&
+                filteredPasswordItems.map((item: PasswordItem) => (
+                  <PasswordCard item={item} key={item.id} />
+                ))}
+            </div>
+          )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {activeTab === "credentials" &&
-            filteredPasswordItems &&
-            filteredPasswordItems.map((item: PasswordItem) => (
-              <PasswordCard item={item} key={item.id} />
-            ))}
-          {activeTab === "cards" &&
-            vaultItems &&
-            vaultItems.cardItems.map((item: CardItem) => (
-              <PaymentCard item={item} key={item.id} />
-            ))}
-          {activeTab === "notes" && <></>}
-          {activeTab === "pins" && <></>}
+          {activeTab === "cards" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {vaultItems &&
+                vaultItems.cardItems.map((item: CardItem) => (
+                  <PaymentCard item={item} key={item.id} />
+                ))}
+            </div>
+          )}
         </div>
+        {activeTab === "notes" && <></>}
+        {activeTab === "pins" && <></>}
       </div>
     </div>
   );

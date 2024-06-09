@@ -87,7 +87,7 @@ const PasswordCard = ({ item }: { item: PasswordItem }) => {
   };
 
   return (
-    <Card className="relative shadow-md p-4 rounded-lg">
+    <Card className="relative shadow-md p-4 rounded-lg transform transition-transform hover:scale-105">
       <CardContent className="flex items-center justify-between space-x-4">
         <div className="space-y-2">
           {isEditing ? (
