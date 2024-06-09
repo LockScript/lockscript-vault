@@ -1,4 +1,4 @@
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, RefreshCcw } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -12,6 +12,38 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useState } from "react";
+import {
+  Slider,
+  Checkbox,
+  FormControlLabel,
+  DialogActions,
+} from "@mui/material";
+
+function generatePassword(
+  length: number,
+  includeSpecialChars: boolean,
+  includeNumbers: boolean,
+  includeUppercase: boolean
+) {
+  const lowerChars = "abcdefghijklmnopqrstuvwxyz";
+  const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numberChars = "0123456789";
+  const specialChars = "!@#$%^&*()_+[]{}|;:,.<>?";
+  let allChars = lowerChars;
+
+  if (includeUppercase) allChars += upperChars;
+  if (includeNumbers) allChars += numberChars;
+  if (includeSpecialChars) allChars += specialChars;
+
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * allChars.length);
+    password += allChars[randomIndex];
+  }
+
+  return password;
+}
 
 const CreateEntryModal = ({
   formData,
@@ -28,6 +60,11 @@ const CreateEntryModal = ({
   handleSave: () => void;
   activeTab: string;
 }) => {
+  const [length, setLength] = useState(12);
+  const [includeSpecialChars, setIncludeSpecialChars] = useState(true);
+  const [includeNumbers, setIncludeNumbers] = useState(true);
+  const [includeUppercase, setIncludeUppercase] = useState(true);
+
   return (
     <>
       {activeTab === "credentials" && (
@@ -75,13 +112,13 @@ const CreateEntryModal = ({
                   }
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
+              <div className="flex items-center gap-4">
                 <Label htmlFor="password" className="text-right">
                   Password
                 </Label>
                 <Input
                   id="password"
-                  className="col-span-3"
+                  className="flex-grow"
                   required
                   type="password"
                   value={formData.password}
@@ -89,16 +126,99 @@ const CreateEntryModal = ({
                     setFormData({ ...formData, password: e.target.value })
                   }
                 />
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-10 p-2">
+                      <RefreshCcw />
+                    </Button>
+                  </DialogTrigger>
+
+                  <DialogContent>
+                    <DialogTitle>Generate Password</DialogTitle>
+                    <DialogDescription>
+                      Generate a secure password.
+                    </DialogDescription>
+
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <label>Password Length: {length}</label>
+                        <Slider
+                          min={6}
+                          max={24}
+                          value={length}
+                          onChange={(e, val) => setLength(val as number)}
+                          valueLabelDisplay="auto"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>
+                          Include special characters
+                        </Label>
+                        <Checkbox
+                          checked={includeSpecialChars}
+                          onChange={() =>
+                            setIncludeSpecialChars(!includeSpecialChars)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <Label>
+                          Include numbers
+                        </Label>
+                        <Checkbox
+                          checked={includeNumbers}
+                          onChange={() => setIncludeNumbers(!includeNumbers)}
+                        />
+                      </div>
+
+                      <div>
+                        <Label>
+                          Include uppercase letters
+                        </Label>
+                        <Checkbox
+                          checked={includeUppercase}
+                          onChange={() =>
+                            setIncludeUppercase(!includeUppercase)
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <DialogFooter>
+                      <DialogClose>
+                        <Button
+                          onClick={() => {
+                            const newPassword = generatePassword(
+                              length,
+                              includeSpecialChars,
+                              includeNumbers,
+                              includeUppercase
+                            );
+                            setFormData({
+                              ...formData,
+                              password: newPassword,
+                            });
+                          }}
+                        >
+                          Generate Password
+                        </Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button className="w-full">
-                  Cancel
-                </Button>
+                <Button className="w-full">Cancel</Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button className="w-full" onClick={handleSave}>Save changes</Button>
+                <Button className="w-full" onClick={handleSave}>
+                  Save changes
+                </Button>
               </DialogClose>
             </DialogFooter>
           </DialogContent>

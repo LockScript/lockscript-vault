@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     try {
         const user = await currentUser();
 
-        if (!user || !user.id) {
+        if (!user || !user?.id) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
@@ -68,7 +68,7 @@ export async function GET(req: Request) {
     try {
         const user = await currentUser()
 
-        if (!user) {
+        if (!user || !user?.id) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
