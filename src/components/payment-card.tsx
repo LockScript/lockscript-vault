@@ -1,6 +1,5 @@
 "use client";
 
-import { deleteItem } from "@/app/(main)/page";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -9,10 +8,18 @@ import {
 } from "@/components/ui/context-menu";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { QueryClient, useMutation } from "react-query";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { QueryClient, useMutation, useQueryClient } from "react-query";
 
-const PaymentCard = ({ item, queryClient }: { item: CardItem, queryClient: QueryClient }) => {
+const PaymentCard = ({
+  item,
+  queryClient,
+  deleteItem,
+}: {
+  item: CardItem;
+  queryClient: QueryClient;
+  deleteItem: (id: string, type: string) => Promise<void>;
+}) => {
   const { toast } = useToast();
 
   const [copied, setCopied] = useState(false);
@@ -168,10 +175,18 @@ const PaymentCard = ({ item, queryClient }: { item: CardItem, queryClient: Query
 
       <ContextMenuContent>
         <ContextMenuItem>Edit</ContextMenuItem>
-        <ContextMenuItem onClick={() => handleCopy(item.cardHolderName)}>Copy Name</ContextMenuItem>
-        <ContextMenuItem onClick={() => handleCopy(item.cardNumber)}>Copy Card Number</ContextMenuItem>
-        <ContextMenuItem onClick={() => handleCopy(item.expiryDate)}>Copy Expiry Date</ContextMenuItem>
-        <ContextMenuItem onClick={() => handleCopy(item.cvv)}>Copy CVV</ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.cardHolderName)}>
+          Copy Name
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.cardNumber)}>
+          Copy Card Number
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.expiryDate)}>
+          Copy Expiry Date
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.cvv)}>
+          Copy CVV
+        </ContextMenuItem>
         <ContextMenuItem
           onClick={() => {
             deleteCardMutation.mutate();

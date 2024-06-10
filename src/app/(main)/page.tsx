@@ -92,7 +92,7 @@ const addCardToVault = async (
   return response.json();
 };
 
-export const deleteItem = async (itemId: string, type: string) => {
+const deleteItem = async (itemId: string, type: string) => {
   const response = await fetch(`/api/vault/${itemId}`, {
     method: "DELETE",
     headers: {
@@ -293,7 +293,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredCardItems &&
                 filteredCardItems.map((item: CardItem) => (
-                  <PaymentCard item={item} key={item.id} queryClient={queryClient} />
+                  <PaymentCard item={item} key={item.id} queryClient={queryClient} deleteItem={deleteItem} />
                 ))}
             </div>
           )}
