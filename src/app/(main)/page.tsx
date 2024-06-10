@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { User } from "@prisma/client";
 import { SearchIcon } from "lucide-react";
+import { revalidatePath } from "next/cache";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -91,6 +92,22 @@ const addCardToVault = async (
   return response.json();
 };
 
+export const deleteItem = async (itemId: string, type: string) => {
+  const response = await fetch(`/api/vault/${itemId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Item-Type": type,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete item from vault`);
+  }
+
+  return response.json();
+};
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("credentials");
@@ -118,6 +135,7 @@ export default function Home() {
   };
 
   const queryClient = useQueryClient();
+
   const savePasswordMutation = useMutation(
     () =>
       addPasswordToVault(
@@ -275,7 +293,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredCardItems &&
                 filteredCardItems.map((item: CardItem) => (
-                  <PaymentCard item={item} key={item.id} />
+                  <PaymentCard item={item} key={item.id} queryClient={queryClient} />
                 ))}
             </div>
           )}

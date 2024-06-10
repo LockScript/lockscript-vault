@@ -1,10 +1,18 @@
 "use client";
 
+import { deleteItem } from "@/app/(main)/page";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { QueryClient, useMutation, useQueryClient } from "react-query";
 
-const PaymentCard = ({ item }: { item: CardItem }) => {
+const PaymentCard = ({ item, queryClient }: { item: CardItem, queryClient: QueryClient }) => {
   const { toast } = useToast();
 
   const [copied, setCopied] = useState(false);
@@ -29,11 +37,11 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
     } else if (firstDigit === "4") {
       return "/images/card/VisaLogo.png";
     } else if (firstDigit === "3") {
-      return "/images/card/AmexLogo.png"
+      return "/images/card/AmexLogo.png";
     } else if (firstDigit === "6") {
-      return "/images/card/DiscoverLogo.png"
+      return "/images/card/DiscoverLogo.png";
     } else {
-      return "/images/card/Unknown.png"
+      return "/images/card/Unknown.png";
     }
   };
 
@@ -45,71 +53,60 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
     } else if (firstDigit === "4") {
       return "/images/card/bgs/BluePurpleCardBG.png";
     } else if (firstDigit === "3") {
-      return "/images/card/bgs/OrangeWaveCardBG.png"
+      return "/images/card/bgs/OrangeWaveCardBG.png";
     } else if (firstDigit === "6") {
-      return "/images/card/bgs/PurpleWaveCardBG.png"
+      return "/images/card/bgs/PurpleWaveCardBG.png";
     } else {
-      return "/images/card/bgs/BlueCardBG.png"
+      return "/images/card/bgs/BlueCardBG.png";
     }
-  }
+  };
+
+  const deleteCardMutation = useMutation(() => deleteItem(item.id, item.type), {
+    onSuccess: () => {
+      queryClient.invalidateQueries("vaultItems");
+    },
+  });
 
   return (
-    <div className="w-96 h-56 m-auto bg-red-100 rounded-xl relative text-white shadow-2xl transition-transform transform hover:scale-110">
-      <img
-        className="relative object-cover w-full h-full rounded-xl"
-        src={getCardBG(item.cardNumber)}
-      />
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <div className="w-96 h-56 m-auto bg-red-100 rounded-xl relative text-white shadow-2xl transition-transform transform hover:scale-110">
+          <img
+            className="relative object-cover w-full h-full rounded-xl"
+            src={getCardBG(item.cardNumber)}
+          />
 
-      <div className="w-full px-8 absolute top-8">
-        <div className="flex justify-between">
-          <div className="">
-            <p className="font-light">Name</p>
-            <Tooltip>
-              <TooltipTrigger>
-                <p
-                  className="font-medium tracking-widest"
-                  onClick={() => handleCopy(item.cardHolderName)}
-                >
-                  {item.cardHolderName.length > 20
-                    ? item.cardHolderName.substring(0, 20) + "..."
-                    : item.cardHolderName}
-                </p>
-              </TooltipTrigger>
+          <div className="w-full px-8 absolute top-8">
+            <div className="flex justify-between">
+              <div className="">
+                <p className="font-light">Name</p>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <p
+                      className="font-medium tracking-widest"
+                      onClick={() => handleCopy(item.cardHolderName)}
+                    >
+                      {item.cardHolderName.length > 20
+                        ? item.cardHolderName.substring(0, 20) + "..."
+                        : item.cardHolderName}
+                    </p>
+                  </TooltipTrigger>
 
-              <TooltipContent>
-                {copied ? "Copied" : "Click to copy"}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-        <div className="pt-1">
-          <p className="font-light">Card Number</p>
-          <Tooltip>
-            <TooltipTrigger>
-              <p
-                className="font-medium tracking-more-wider"
-                onClick={() => handleCopy(item.cardNumber)}
-              >
-                {item.cardNumber}
-              </p>
-            </TooltipTrigger>
-
-            <TooltipContent>
-              {copied ? "Copied" : "Click to copy"}
-            </TooltipContent>
-          </Tooltip>
-        </div>
-        <div className="pt-6 pr-6">
-          <div className="flex justify-between">
-            <div className="">
-              <p className="font-light text-xs">Expiry</p>
+                  <TooltipContent>
+                    {copied ? "Copied" : "Click to copy"}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+            <div className="pt-1">
+              <p className="font-light">Card Number</p>
               <Tooltip>
                 <TooltipTrigger>
                   <p
-                    className="font-medium tracking-wider text-sm"
-                    onClick={() => handleCopy(item.expiryDate)}
+                    className="font-medium tracking-more-wider"
+                    onClick={() => handleCopy(item.cardNumber)}
                   >
-                    {item.expiryDate}
+                    {item.cardNumber}
                   </p>
                 </TooltipTrigger>
 
@@ -118,36 +115,72 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
                 </TooltipContent>
               </Tooltip>
             </div>
+            <div className="pt-6 pr-6">
+              <div className="flex justify-between">
+                <div className="">
+                  <p className="font-light text-xs">Expiry</p>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <p
+                        className="font-medium tracking-wider text-sm"
+                        onClick={() => handleCopy(item.expiryDate)}
+                      >
+                        {item.expiryDate}
+                      </p>
+                    </TooltipTrigger>
 
-            <div className="mr-20">
-              <p className="font-light text-xs">CVV</p>
-              <Tooltip>
-                <TooltipTrigger>
-                  <p
-                    className="font-bold tracking-more-wider text-sm"
-                    onClick={() => handleCopy(item.cvv)}
-                  >
-                    {item.cvv.replace(/./g, "*")}
-                  </p>
-                </TooltipTrigger>
+                    <TooltipContent>
+                      {copied ? "Copied" : "Click to copy"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
 
-                <TooltipContent>
-                  {copied ? "Copied" : "Click to copy"}
-                </TooltipContent>
-              </Tooltip>
+                <div className="mr-20">
+                  <p className="font-light text-xs">CVV</p>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <p
+                        className="font-bold tracking-more-wider text-sm"
+                        onClick={() => handleCopy(item.cvv)}
+                      >
+                        {item.cvv.replace(/./g, "*")}
+                      </p>
+                    </TooltipTrigger>
+
+                    <TooltipContent>
+                      {copied ? "Copied" : "Click to copy"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {item.cardNumber && (
-        <img
-          className="absolute bottom-0 right-0 w-16 h-auto m-4"
-          src={getCardLogo(item.cardNumber)}
-          alt="Card Logo"
-        />
-      )}
-    </div>
+          {item.cardNumber && (
+            <img
+              className="absolute bottom-0 right-0 w-16 h-auto m-4"
+              src={getCardLogo(item.cardNumber)}
+              alt="Card Logo"
+            />
+          )}
+        </div>
+      </ContextMenuTrigger>
+
+      <ContextMenuContent>
+        <ContextMenuItem>Edit</ContextMenuItem>
+        <ContextMenuItem>Copy Name</ContextMenuItem>
+        <ContextMenuItem>Copy Card Number</ContextMenuItem>
+        <ContextMenuItem>Copy Expiry Date</ContextMenuItem>
+        <ContextMenuItem>Copy CVV</ContextMenuItem>
+        <ContextMenuItem
+          onClick={() => {
+            deleteCardMutation.mutate();
+          }}
+        >
+          Delete
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 };
 
