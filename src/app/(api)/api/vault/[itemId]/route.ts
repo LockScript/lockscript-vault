@@ -1,12 +1,11 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { PrismaClient } from '@prisma/client';
-import { NextApiRequest } from "next";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function DELETE(req: NextApiRequest, { params }: { params: { itemId: string } },) {
+export async function DELETE(req: Request, { params }: { params: { itemId: string } },) {
     try {
         const user = await currentUser();
         const itemId = params.itemId
