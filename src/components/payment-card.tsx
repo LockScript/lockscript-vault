@@ -37,11 +37,27 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
     }
   };
 
+  const getCardBG = (cardNumber: string) => {
+    const firstDigit = cardNumber.charAt(0);
+
+    if (firstDigit === "5") {
+      return "/images/card/bgs/BlueCardBG.png";
+    } else if (firstDigit === "4") {
+      return "/images/card/bgs/BluePurpleCardBG.png";
+    } else if (firstDigit === "3") {
+      return "/images/card/bgs/OrangeWaveCardBG.png"
+    } else if (firstDigit === "6") {
+      return "/images/card/bgs/PurpleWaveCardBG.png"
+    } else {
+      return "/images/card/bgs/BlueCardBG.png"
+    }
+  }
+
   return (
     <div className="w-96 h-56 m-auto bg-red-100 rounded-xl relative text-white shadow-2xl transition-transform transform hover:scale-110">
       <img
         className="relative object-cover w-full h-full rounded-xl"
-        src="/images/card/bgs/BlueCardBG.png"
+        src={getCardBG(item.cardNumber)}
       />
 
       <div className="w-full px-8 absolute top-8">
