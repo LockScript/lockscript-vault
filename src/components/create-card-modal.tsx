@@ -94,13 +94,13 @@ const CreateCardModal = ({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="cardNumber" className="text-right">
+            <div>
+              <Label htmlFor="cardNumber" className="col-span-1 text-right">
                 Card Number
               </Label>
               <Input
                 id="cardNumber"
-                className="col-span-3"
+                className="col-span-3 w-full"
                 required
                 value={formData.cardNumber}
                 onChange={(e) => {
@@ -131,13 +131,14 @@ const CreateCardModal = ({
                 placeholder="Card Number"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="expiryDate" className="text-right">
+
+            <div>
+              <Label htmlFor="expiryDate" className="col-span-1 text-right">
                 Expiry Date
               </Label>
               <Input
                 id="expiryDate"
-                className="col-span-3"
+                className="col-span-3 w-full"
                 required
                 value={formData.expiryDate}
                 onChange={(e) => {
@@ -153,13 +154,14 @@ const CreateCardModal = ({
                 placeholder="MM/YY"
               />
             </div>
-            <div className="flex items-center gap-4">
-              <Label htmlFor="cvv" className="text-right">
+
+            <div>
+              <Label htmlFor="cvv" className="col-span-1 text-right">
                 CVV
               </Label>
               <Input
                 id="cvv"
-                className="flex-grow"
+                className="flex-grow w-full"
                 required
                 type="password"
                 inputMode="numeric"
@@ -174,29 +176,36 @@ const CreateCardModal = ({
                 placeholder="CVV"
               />
             </div>
-            <div className="flex items-center gap-4">
-              <Label htmlFor="cardHolderName" className="text-right">
+
+            <div>
+              <Label htmlFor="cardHolderName" className="col-span-1 text-right">
                 Card Holder Name
               </Label>
               <Input
-                id="cvv"
-                className="flex-grow"
+                id="cardHolderName"
+                className="flex-grow w-full"
                 required
                 type="text"
                 value={formData.cardHolderName}
                 onChange={(e) => {
                   const input = e.target.value;
-                  const textInput = input.replace(/[^A-Za-z\s]/g, "");
-                  setFormData({ ...formData, cardHolderName: textInput });
+                  const words = input.split(/\s+/);
+                  if (words.length <= 2) {
+                    setFormData({ ...formData, cardHolderName: input });
+                  } else {
+                    const truncatedInput = words.slice(0, 2).join(" ");
+                    setFormData({
+                      ...formData,
+                      cardHolderName: truncatedInput,
+                    });
+                  }
                 }}
                 placeholder="John Smith"
               />
             </div>
           </div>
+
           <DialogFooter>
-            <DialogClose asChild>
-              <Button className="w-full">Cancel</Button>
-            </DialogClose>
             <DialogClose asChild>
               <Button className="w-full" onClick={handleSaveClick}>
                 Save

@@ -22,6 +22,21 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
     }, 2000);
   };
 
+  const getCardLogo = (cardNumber: string) => {
+    const firstDigit = cardNumber.charAt(0);
+    if (firstDigit === "5") {
+      return "/images/card/MastercardLogo.png";
+    } else if (firstDigit === "4") {
+      return "/images/card/VisaLogo.png";
+    } else if (firstDigit === "3") {
+      return "/images/card/AmexLogo.png"
+    } else if (firstDigit === "6") {
+      return "/images/card/DiscoverLogo.png"
+    } else {
+      return "/images/card/Unknown.png"
+    }
+  };
+
   return (
     <div className="w-96 h-56 m-auto bg-red-100 rounded-xl relative text-white shadow-2xl transition-transform transform hover:scale-110">
       <img
@@ -50,7 +65,6 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
               </TooltipContent>
             </Tooltip>
           </div>
-          <img className="w-14 h-14" src="https://i.imgur.com/bbPHJVe.png" />
         </div>
         <div className="pt-1">
           <p className="font-light">Card Number</p>
@@ -72,10 +86,6 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
         <div className="pt-6 pr-6">
           <div className="flex justify-between">
             <div className="">
-              <p className="font-light text-xs"></p>
-              <p className="font-medium tracking-wider text-sm mr-10"></p>
-            </div>
-            <div className="">
               <p className="font-light text-xs">Expiry</p>
               <Tooltip>
                 <TooltipTrigger>
@@ -93,7 +103,7 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
               </Tooltip>
             </div>
 
-            <div className="">
+            <div className="mr-20">
               <p className="font-light text-xs">CVV</p>
               <Tooltip>
                 <TooltipTrigger>
@@ -113,6 +123,14 @@ const PaymentCard = ({ item }: { item: CardItem }) => {
           </div>
         </div>
       </div>
+
+      {item.cardNumber && (
+        <img
+          className="absolute bottom-0 right-0 w-16 h-auto m-4"
+          src={getCardLogo(item.cardNumber)}
+          alt="Card Logo"
+        />
+      )}
     </div>
   );
 };
