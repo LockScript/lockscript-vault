@@ -1,6 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from '@prisma/client';
+import { NextApiRequest } from "next";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -15,7 +15,7 @@ export async function DELETE(req: NextApiRequest, { params }: { params: { itemId
         if (!user || !user.id) {
             return new NextResponse("Not Authenticated", { status: 401 });
         }
-        
+
         console.log(itemId, type)
 
         if (!itemId || !type) {
