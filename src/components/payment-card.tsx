@@ -168,10 +168,10 @@ const PaymentCard = ({ item, queryClient }: { item: CardItem, queryClient: Query
 
       <ContextMenuContent>
         <ContextMenuItem>Edit</ContextMenuItem>
-        <ContextMenuItem>Copy Name</ContextMenuItem>
-        <ContextMenuItem>Copy Card Number</ContextMenuItem>
-        <ContextMenuItem>Copy Expiry Date</ContextMenuItem>
-        <ContextMenuItem>Copy CVV</ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.cardHolderName)}>Copy Name</ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.cardNumber)}>Copy Card Number</ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.expiryDate)}>Copy Expiry Date</ContextMenuItem>
+        <ContextMenuItem onClick={() => handleCopy(item.cvv)}>Copy CVV</ContextMenuItem>
         <ContextMenuItem
           onClick={() => {
             deleteCardMutation.mutate();
