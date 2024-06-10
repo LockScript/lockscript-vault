@@ -200,10 +200,6 @@ export default function Home() {
 
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-
       <Sidebar
         isMobileNavOpen={isMobileNavOpen}
         toggleMobileNav={toggleMobileNav}
