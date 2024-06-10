@@ -193,10 +193,25 @@ export default function Home() {
   };
 
   const filteredPasswordItems = searchTerm
-    ? vaultItems?.passwordItems.filter((item: PasswordItem) =>
-        item.website.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+    ? vaultItems?.passwordItems.filter((item: PasswordItem) => {
+        const searchTermLower = searchTerm.toLowerCase();
+        return (
+          item.website.toLowerCase().includes(searchTermLower) ||
+          item.username.toLowerCase().includes(searchTermLower)
+        );
+      })
     : vaultItems?.passwordItems;
+
+  const filteredCardItems = searchTerm
+    ? vaultItems?.cardItems.filter((item: CardItem) => {
+        const searchTermLower = searchTerm.toLowerCase();
+        return (
+          item.cardNumber.toLowerCase().includes(searchTermLower) ||
+          item.cardHolderName.toLowerCase().includes(searchTermLower) ||
+          item.expiryDate.toLowerCase().includes(searchTermLower)
+        );
+      })
+    : vaultItems?.cardItems;
 
   return (
     <div className="grid grid-cols-[240px_1fr] h-screen">
@@ -258,8 +273,8 @@ export default function Home() {
 
           {activeTab === "cards" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {vaultItems &&
-                vaultItems.cardItems.map((item: CardItem) => (
+              {filteredCardItems &&
+                filteredCardItems.map((item: CardItem) => (
                   <PaymentCard item={item} key={item.id} />
                 ))}
             </div>
