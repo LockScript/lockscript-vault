@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { User } from "@prisma/client";
-import { SearchIcon } from "lucide-react";
+import { Loader2, SearchIcon } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
@@ -232,75 +232,92 @@ export default function Home() {
     : vaultItems?.cardItems;
 
   return (
-    <div className="grid grid-cols-[240px_1fr] h-screen">
-      <Sidebar
-        isMobileNavOpen={isMobileNavOpen}
-        toggleMobileNav={toggleMobileNav}
-        activeTab={activeTab}
-        handleTabChange={handleTabChange}
-      />
+    <>
+      {" "}
+      {!isLoadingVaultItems && (
+        <div className="grid grid-cols-[240px_1fr] h-screen">
+          <Sidebar
+            isMobileNavOpen={isMobileNavOpen}
+            toggleMobileNav={toggleMobileNav}
+            activeTab={activeTab}
+            handleTabChange={handleTabChange}
+          />
+          <div className="p-8 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="relative w-full max-w-md">
+                <Input
+                  type="text"
+                  placeholder={`Search ${
+                    activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
+                  }`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pr-10"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-1/2 right-2 -translate-y-1/2"
+                >
+                  <SearchIcon className="h-4 w-4" />
+                  <span className="sr-only">Search</span>
+                </Button>
+              </div>
 
-      <div className="p-8 overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <div className="relative w-full max-w-md">
-            <Input
-              type="text"
-              placeholder={`Search ${
-                activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
-              }`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-1/2 right-2 -translate-y-1/2"
-            >
-              <SearchIcon className="h-4 w-4" />
-              <span className="sr-only">Search</span>
-            </Button>
+              {activeTab === "credentials" && (
+                <CreatePasswordModal
+                  formData={passwordFormData}
+                  setFormData={setPasswordFormData}
+                  handleSave={handlePasswordSave}
+                  activeTab={activeTab}
+                />
+              )}
+              {activeTab === "cards" && (
+                <CreateCardModal
+                  formData={cardFormData}
+                  setFormData={setCardFormData}
+                  handleSave={handleCardSave}
+                  activeTab={activeTab}
+                />
+              )}
+            </div>
+            <div>
+              {activeTab === "credentials" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredPasswordItems &&
+                    filteredPasswordItems.map((item: PasswordItem) => (
+                      <PasswordCard item={item} key={item.id} />
+                    ))}
+                </div>
+              )}
+
+              {activeTab === "cards" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {filteredCardItems &&
+                    filteredCardItems.map((item: CardItem) => (
+                      <PaymentCard
+                        item={item}
+                        key={item.id}
+                        queryClient={queryClient}
+                        deleteItem={deleteItem}
+                      />
+                    ))}
+                </div>
+              )}
+            </div>
+            {activeTab === "notes" && <></>}
+            {activeTab === "pins" && <></>}
           </div>
-
-          {activeTab === "credentials" && (
-            <CreatePasswordModal
-              formData={passwordFormData}
-              setFormData={setPasswordFormData}
-              handleSave={handlePasswordSave}
-              activeTab={activeTab}
-            />
-          )}
-          {activeTab === "cards" && (
-            <CreateCardModal
-              formData={cardFormData}
-              setFormData={setCardFormData}
-              handleSave={handleCardSave}
-              activeTab={activeTab}
-            />
-          )}
         </div>
-        <div>
-          {activeTab === "credentials" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredPasswordItems &&
-                filteredPasswordItems.map((item: PasswordItem) => (
-                  <PasswordCard item={item} key={item.id} />
-                ))}
-            </div>
-          )}
-
-          {activeTab === "cards" && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredCardItems &&
-                filteredCardItems.map((item: CardItem) => (
-                  <PaymentCard item={item} key={item.id} queryClient={queryClient} deleteItem={deleteItem} />
-                ))}
-            </div>
-          )}
+      )}
+      {isLoadingVaultItems && (
+        <div className="flex justify-center mt-[20rem]">
+          <Loader2
+            className="animate-spin text-purple-300"
+            size={100}
+          />
         </div>
-        {activeTab === "notes" && <></>}
-        {activeTab === "pins" && <></>}
-      </div>
-    </div>
+      )}
+    </>
   );
 }
