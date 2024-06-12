@@ -13,10 +13,8 @@ import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { User } from "@prisma/client";
 import { Loader2, SearchIcon } from "lucide-react";
-import { revalidatePath } from "next/cache";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -312,10 +310,7 @@ export default function Home() {
       )}
       {isLoadingVaultItems && (
         <div className="flex justify-center mt-[20rem]">
-          <Loader2
-            className="animate-spin text-purple-300"
-            size={100}
-          />
+          <Loader2 className="animate-spin text-purple-300" size={100} />
         </div>
       )}
     </>

@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import CryptoJS from 'crypto-js';
 import { NextResponse } from 'next/server';
 const prisma = new PrismaClient()
-import CryptoJS from 'crypto-js';
 
 export async function POST(
     req: Request,
