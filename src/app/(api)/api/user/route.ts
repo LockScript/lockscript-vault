@@ -18,8 +18,6 @@ export async function GET(req: Request) {
             }
         })
 
-        console.log(dbUser)
-
         return NextResponse.json(dbUser)
     } catch (error) {
         console.error("Error getting user:", error);

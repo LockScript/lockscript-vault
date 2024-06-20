@@ -24,8 +24,6 @@ export async function POST(
             return new NextResponse("Invalid event type", { status: 400 });
         }
 
-        const vaultKey = CryptoJS.lib.WordArray.random(128 / 8).toString();
-
         const user = await prisma.user.create({
             data: {
                 id: id,

@@ -15,8 +15,6 @@ export async function DELETE(req: Request, { params }: { params: { itemId: strin
             return new NextResponse("Not Authenticated", { status: 401 });
         }
 
-        console.log(itemId, type)
-
         if (!itemId || !type) {
             return new NextResponse("Bad Request", { status: 400 });
         }
