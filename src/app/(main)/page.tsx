@@ -235,9 +235,7 @@ export default function Home() {
     ? vaultItems?.nodeItems.filter((item: NoteItem) => {
         const searchTermLower = searchTerm.toLowerCase();
 
-        return (
-          item.note.toLowerCase().includes(searchTermLower)
-        );
+        return item.note.toLowerCase().includes(searchTermLower);
       })
     : vaultItems?.noteItems;
 
@@ -294,9 +292,6 @@ export default function Home() {
             <div>
               {activeTab === "credentials" && (
                 <div className="flex flex-col h-full">
-                  <header className="bg-muted py-4 px-6">
-                    <h1 className="text-2xl font-bold">Password Manager</h1>
-                  </header>
                   <div className="flex-1 overflow-auto p-6">
                     <Table>
                       <TableHeader>
@@ -311,7 +306,12 @@ export default function Home() {
                       <TableBody>
                         {filteredPasswordItems &&
                           filteredPasswordItems.map((item: PasswordItem) => (
-                            <PasswordCard item={item} key={item.id} deleteItem={deleteItem} queryClient={queryClient} />
+                            <PasswordCard
+                              item={item}
+                              key={item.id}
+                              deleteItem={deleteItem}
+                              queryClient={queryClient}
+                            />
                           ))}
                       </TableBody>
                     </Table>
@@ -339,8 +339,12 @@ export default function Home() {
         </div>
       )}
       {isLoadingVaultItems && (
-        <div className="flex justify-center mt-[20rem]">
-          <Loader2 className="animate-spin text-purple-300" size={100} />
+        <div className="fixed inset-0 flex items-center justify-center bg-background">
+          <div className="relative w-24 h-24 animate-pulse">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-secondary opacity-50 blur-xl" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-secondary opacity-30 blur-2xl" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-secondary" />
+          </div>
         </div>
       )}
     </>
