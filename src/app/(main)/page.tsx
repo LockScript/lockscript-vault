@@ -1,8 +1,3 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/SAqzUqktarh
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
 "use client";
 
 import CreateCardModal from "@/components/create-card-modal";
@@ -12,6 +7,13 @@ import PaymentCard from "@/components/payment-card";
 import Sidebar from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { User } from "@prisma/client";
 import { Loader2, SearchIcon } from "lucide-react";
@@ -229,6 +231,16 @@ export default function Home() {
       })
     : vaultItems?.cardItems;
 
+  const filteredNoteItems = searchTerm
+    ? vaultItems?.nodeItems.filter((item: NoteItem) => {
+        const searchTermLower = searchTerm.toLowerCase();
+
+        return (
+          item.note.toLowerCase().includes(searchTermLower)
+        );
+      })
+    : vaultItems?.noteItems;
+
   return (
     <>
       {" "}
@@ -281,11 +293,29 @@ export default function Home() {
             </div>
             <div>
               {activeTab === "credentials" && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredPasswordItems &&
-                    filteredPasswordItems.map((item: PasswordItem) => (
-                      <PasswordCard item={item} key={item.id} />
-                    ))}
+                <div className="flex flex-col h-full">
+                  <header className="bg-muted py-4 px-6">
+                    <h1 className="text-2xl font-bold">Password Manager</h1>
+                  </header>
+                  <div className="flex-1 overflow-auto p-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Website</TableHead>
+                          <TableHead>Username</TableHead>
+                          <TableHead>Password</TableHead>
+                          <TableHead>Notes</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredPasswordItems &&
+                          filteredPasswordItems.map((item: PasswordItem) => (
+                            <PasswordCard item={item} key={item.id} deleteItem={deleteItem} queryClient={queryClient} />
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               )}
 
