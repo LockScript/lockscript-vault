@@ -299,7 +299,6 @@ export default function Home() {
                           <TableHead>Website</TableHead>
                           <TableHead>Username</TableHead>
                           <TableHead>Password</TableHead>
-                          <TableHead>Notes</TableHead>
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>

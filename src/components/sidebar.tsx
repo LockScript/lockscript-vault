@@ -1,12 +1,14 @@
-import { UserButton } from "@clerk/nextjs";
-import {
-  MenuIcon,
-  KeyIcon,
-  CreditCardIcon,
-  StickyNoteIcon,
-  PinIcon,
-} from "lucide-react";
-import { Button } from "./ui/button";
+/**
+ * v0 by Vercel.
+ * @see https://v0.dev/t/lcKXKTbtpkn
+ * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
+ */
+import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible"
+import { AsteriskIcon, ChevronRightIcon, CreditCardIcon, HomeIcon, KeyIcon, LayoutDashboardIcon, LineChartIcon, MenuIcon, NotepadText, Package2Icon, PackageIcon, PinIcon, ShoppingCartIcon, UserIcon, UsersIcon, XIcon } from "lucide-react"
 
 const Sidebar = ({
   isMobileNavOpen,
@@ -20,96 +22,126 @@ const Sidebar = ({
   handleTabChange: any;
 }) => {
   return (
-    <div className="bg-gray-100 dark:bg-gray-8s00 p-6 space-y-6 relative">
-      <div className="flex items-center justify-between">
-        <UserButton />
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-500 via-purple-400 to-purple-600 text-transparent bg-clip-text">
-          LockScript
-        </h1>
-        <div className="block md:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-6 right-6"
-            onClick={toggleMobileNav}
-          >
-            <MenuIcon className="h-6 w-6" />
-            <span className="sr-only">Toggle mobile navigation</span>
-          </Button>
-          {isMobileNavOpen && (
-            <div className="absolute top-16 left-0 right-0 bg-gray-100 dark:bg-gray-800 p-6 space-y-2">
-              <Button
-                variant={activeTab === "credentials" ? "link" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => handleTabChange("credentials")}
-              >
-                <KeyIcon className="mr-2 h-4 w-4" />
-                Credentials
-              </Button>
-              <Button
-                variant={activeTab === "cards" ? "link" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => handleTabChange("cards")}
-              >
-                <CreditCardIcon className="mr-2 h-4 w-4" />
-                Cards
-              </Button>
-              <Button
-                variant={activeTab === "notes" ? "link" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => handleTabChange("notes")}
-              >
-                <StickyNoteIcon className="mr-2 h-4 w-4" />
-                Secure Notes
-              </Button>
-              <Button
-                variant={activeTab === "pins" ? "link" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => handleTabChange("pins")}
-              >
-                <PinIcon className="mr-2 h-4 w-4" />
-                Pins
-              </Button>
-            </div>
-          )}
+    <div className="flex min-h-screen w-full">
+      <div className="hidden border-r bg-muted/40 lg:block">
+        <div className="flex flex-col gap-2">
+          <div className="flex h-[60px] items-center px-6">
+            <Link href="#" className="flex items-center gap-2 font-semibold" prefetch={false}>
+              <Package2Icon className="h-6 w-6" />
+            </Link>
+          </div>
+          <nav className="flex flex-col items-start gap-2 px-4 py-2">
+            <Link
+              href="#"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:text-primary"
+              prefetch={false}
+              onClick={() => handleTabChange("credentials")}
+            >
+              <KeyIcon className="h-5 w-5" />
+            </Link>
+            <Link
+              href="#"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:text-primary"
+              prefetch={false}
+              onClick={() => handleTabChange("cards")}
+            >
+              <CreditCardIcon className="h-5 w-5" />
+            </Link>
+            <Link
+              href="#"
+              className="flex items-center gap-2 rounded-md bg-muted px-3 py-2 text-primary transition-colors hover:text-primary"
+              prefetch={false}
+              onClick={() => handleTabChange("pins")}
+            >
+              <AsteriskIcon className="h-5 w-5" />
+            </Link>
+            <Link
+              href="#"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:text-primary"
+              prefetch={false}
+              onClick={() => handleTabChange("notes")}
+            >
+              <NotepadText className="h-5 w-5" />
+            </Link>
+          </nav>
         </div>
       </div>
-      <nav className="space-y-2 hidden md:block">
-        <Button
-          variant={activeTab === "credentials" ? "link" : "ghost"}
-          className="w-full justify-start"
-          onClick={() => handleTabChange("credentials")}
-        >
-          <KeyIcon className="mr-2 h-4 w-4" />
-          Credentials
-        </Button>
-        <Button
-          variant={activeTab === "cards" ? "link" : "ghost"}
-          className="w-full justify-start"
-          onClick={() => handleTabChange("cards")}
-        >
-          <CreditCardIcon className="mr-2 h-4 w-4" />
-          Cards
-        </Button>
-        <Button
-          variant={activeTab === "notes" ? "link" : "ghost"}
-          className="w-full justify-start"
-          onClick={() => handleTabChange("notes")}
-        >
-          <StickyNoteIcon className="mr-2 h-4 w-4" />
-          Secure Notes
-        </Button>
-        <Button
-          variant={activeTab === "pins" ? "link" : "ghost"}
-          className="w-full justify-start"
-          onClick={() => handleTabChange("pins")}
-        >
-          <PinIcon className="mr-2 h-4 w-4" />
-          Pins
-        </Button>
-      </nav>
+      <div className="flex flex-col lg:hidden">
+        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-6">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="rounded-full">
+                <MenuIcon className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 bg-background shadow-lg">
+              <div className="flex h-14 items-center justify-between border-b px-4">
+                <div className="text-lg font-semibold">Menu</div>
+                <SheetClose asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <XIcon className="h-5 w-5" />
+                  </Button>
+                </SheetClose>
+              </div>
+              <div className="flex-1 overflow-auto py-2">
+                <Collapsible className="space-y-1">
+                  <CollapsibleTrigger className="flex items-center justify-between gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted [&[data-state=open]>svg]:rotate-90">
+                    <div className="flex items-center gap-2">
+                      <HomeIcon className="h-5 w-5" />
+                      Home
+                    </div>
+                    <ChevronRightIcon className="h-5 w-5 transition-transform" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-1 pl-8">
+                    <Link
+                      href="#"
+                      className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                      prefetch={false}
+                    >
+                      <LayoutDashboardIcon className="h-5 w-5" />
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="#"
+                      className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                      prefetch={false}
+                    >
+                      <ShoppingCartIcon className="h-5 w-5" />
+                      Orders
+                    </Link>
+                    <Link
+                      href="#"
+                      className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                      prefetch={false}
+                    >
+                      <PackageIcon className="h-5 w-5" />
+                    </Link>
+                  </CollapsibleContent>
+                </Collapsible>
+                <Collapsible className="space-y-1">
+                  <CollapsibleTrigger className="flex items-center justify-between gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted [&[data-state=open]>svg]:rotate-90">
+                    <div className="flex items-center gap-2">
+                      <UsersIcon className="h-5 w-5" />
+                    </div>
+                    <ChevronRightIcon className="h-5 w-5 transition-transform" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-1 pl-8">
+                    <Link
+                      href="#"
+                      className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                      prefetch={false}
+                    >
+                      <UserIcon className="h-5 w-5" />
+                    </Link>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </header>
+      </div>
     </div>
-  );
-};
+  )
+}
 
 export default Sidebar;
