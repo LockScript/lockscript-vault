@@ -1,10 +1,8 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Inter, Montserrat } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider, RedirectToSignIn, SignedOut } from "@clerk/nextjs";
-import { QueryProvider } from "@/providers/query-client";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { ModalProvider } from "@/providers/modal-provider";
 
 const inter = Montserrat({ subsets: ["latin"] });
 
@@ -19,23 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <QueryProvider>
-      <TooltipProvider>
-        <ClerkProvider>
-          <html lang="en">
-            <body className={inter.className}>
-              <Toaster />
-              <header>
-                <SignedOut>
-                  <RedirectToSignIn />
-                </SignedOut>
-              </header>
-
-              <main>{children}</main>
-            </body>
-          </html>
-        </ClerkProvider>
-      </TooltipProvider>
-    </QueryProvider>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <ModalProvider />
+          <main>{children}</main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

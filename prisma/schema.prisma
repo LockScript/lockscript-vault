@@ -16,6 +16,7 @@ datasource db {
 model User {
   id            String         @id @default(uuid())
   username      String         @unique
+  key           String         @unique
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   passwordItems PasswordItem[]
@@ -24,47 +25,54 @@ model User {
   noteItems     NoteItem[]
 }
 
+enum VaultItemType {
+  PASSWORD
+  CARD
+  PIN
+  NOTE
+}
+
 model PasswordItem {
-  id        String   @id @default(uuid())
-  type      String   @default("password")
+  id        String        @id @default(uuid())
+  type      VaultItemType @default(PASSWORD)
   website   String
   username  String
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
 }
 
 model CardItem {
-  id             String   @id @default(uuid())
-  type           String   @default("card")
+  id             String        @id @default(uuid())
+  type           VaultItemType @default(CARD)
   cardNumber     String
   expiryDate     String
   cvv            String
   cardHolderName String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   userId         String
-  user           User     @relation(fields: [userId], references: [id])
+  user           User          @relation(fields: [userId], references: [id])
 }
 
 model PinItem {
-  id        String   @id @default(uuid())
-  type      String   @default("pin")
+  id        String        @id @default(uuid())
+  type      VaultItemType @default(PIN)
   pin       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
 }
 
 model NoteItem {
-  id        String   @id @default(uuid())
-  type      String   @default("note")
+  id        String        @id @default(uuid())
+  type      VaultItemType @default(NOTE)
   note      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
 }
