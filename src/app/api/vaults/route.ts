@@ -5,16 +5,9 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const { userId } = auth();
-    const body = await req.json();
-
-    const { key } = body;
 
     if (!userId) {
       return new NextResponse("Unauthenticated", { status: 401 });
-    }
-
-    if (!key) {
-      return new NextResponse("Encryption Key is required", { status: 400 });
     }
 
     const clerkUser = await clerkClient.users.getUser(userId);
@@ -33,14 +26,13 @@ export async function POST(req: Request) {
       data: {
         id: userId,
         username: clerkUser.username!,
-        key: key,
       },
       include: {
         passwordItems: true,
         cardItems: true,
         pinItems: true,
         noteItems: true,
-      }
+      },
     });
 
     return NextResponse.json(vault);

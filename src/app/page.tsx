@@ -2,13 +2,18 @@ import VaultPage from "@/components/ui/vault/vault";
 import { useVaultModal } from "@/hooks/use-vault-modal";
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs/server";
+import {redirect} from "next/navigation";
 
 const Page = async () => {
   const { userId } = auth();
 
+  if (!userId) {
+    redirect("/sign-in")
+  }
+
   const user = await prismadb.user.findUnique({
     where: {
-      id: userId!,
+      id: userId,
     },
     include: {
       passwordItems: true,
@@ -20,7 +25,7 @@ const Page = async () => {
 
   return (
     <>
-      <VaultPage user={user!} />
+      <VaultPage user={user} />
     </>
   );
 };
