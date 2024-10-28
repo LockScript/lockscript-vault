@@ -1,6 +1,17 @@
 "use client";
 
-import { Asterisk, Calendar, CreditCard, Home, Inbox, Key, KeySquare, Notebook, Search, Settings } from "lucide-react";
+import {
+  Asterisk,
+  Calendar,
+  CreditCard,
+  Home,
+  Inbox,
+  Key,
+  KeySquare,
+  Notebook,
+  Search,
+  Settings,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -13,6 +24,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/hooks/use-sidebar-tab";
+import { UserButton } from "@clerk/nextjs";
 
 // Menu items.
 const items = [
@@ -45,7 +57,13 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>LockScript Vault</SidebarGroupLabel>
+          <SidebarGroupLabel className="mb-10">
+            <UserButton />
+
+            <span className="flex justify-end ml-auto font-semibold">
+              LockScript Vault
+            </span>
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

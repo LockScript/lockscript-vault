@@ -1,15 +1,13 @@
 "use client";
 
 import { usePasswordModal } from "@/hooks/use-password-modal";
-import { Prisma } from "@prisma/client";
-import { CirclePlus, Loader } from "lucide-react";
-import { Button } from "../button";
-import CryptoJS from "crypto-js";
 import { useUser } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
+import CryptoJS from "crypto-js";
+import { CirclePlus, Loader } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "../button";
 import { DataTable } from "../password-table/data-table";
-import { columns } from "../password-table/columns";
 
 interface PasswordVaultProps {
   user: Prisma.UserGetPayload<{
@@ -30,7 +28,6 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
 
   useEffect(() => {
     if (!clerkUser) {
-      redirect("/sign-in");
       return;
     }
 
@@ -56,6 +53,12 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
     }-${clerkUser!.createdAt?.getUTCMinutes()}`;
   };
 
+  const [visibility, setVisibility] = useState<Record<string, boolean>>({});
+
+  const toggleVisibility = (id: string) => {
+    setVisibility((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const decrypt = async (encryptedData: string) => {
     const encryptionPassword = generateEncryptionPassword();
     const bytes = CryptoJS.AES.decrypt(encryptedData, encryptionPassword);
@@ -72,7 +75,7 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
   }
 
   return (
-    <div>
+    <div className="ml-10 mr-10">
       <div className="relative w-full h-full">
         <div className="fixed top-2 right-2 h-16 w-16 flex items-center justify-center">
           <Button size="icon" onClick={passwordModal.onOpen}>
@@ -81,8 +84,8 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
         </div>
       </div>
 
-      <h1>{user.username}&apos;s Password Vault</h1>
-      <DataTable columns={columns} data={data} decrypt={decrypt} />
+      <h1 className="flex justify-center ml-auto text-5xl mb-10">Passwords</h1>
+      <DataTable data={data} decrypt={decrypt} />
     </div>
   );
 };

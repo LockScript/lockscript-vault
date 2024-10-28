@@ -1,14 +1,17 @@
 import VaultPage from "@/components/ui/vault/vault";
-import { useVaultModal } from "@/hooks/use-vault-modal";
 import prismadb from "@/lib/prismadb";
-import { auth } from "@clerk/nextjs/server";
-import {redirect} from "next/navigation";
+import {auth} from "@clerk/nextjs/server";
+import {Loader} from "lucide-react";
 
 const Page = async () => {
   const { userId } = auth();
 
   if (!userId) {
-    redirect("/sign-in")
+    return (
+      <div className="h-full w-full flex justify-center items-center">
+        <Loader className="text-black animate-spin" />
+      </div>
+    )
   }
 
   const user = await prismadb.user.findUnique({
