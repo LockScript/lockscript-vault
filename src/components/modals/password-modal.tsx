@@ -79,6 +79,8 @@ export const PasswordModal = () => {
       });
 
       window.location.reload();
+
+      toast.success("Password created successfully.");
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {

@@ -1,26 +1,24 @@
-"use client"
+"use client";
 
-import {ConfirmationModal} from "@/components/modals/confirmation-modal";
-import {PasswordModal} from "@/components/modals/password-modal";
-import {VaultModal} from "@/components/modals/vault-modal";
-import {useEffect, useState} from "react"
+import { PasswordModal } from "@/components/modals/password-modal";
+import { VaultModal } from "@/components/modals/vault-modal";
+import { useEffect, useState } from "react";
 
 export const ModalProvider = () => {
-    const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        setIsMounted(true)
-    }, [])
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-    if (!isMounted) {
-        return null;
-    }
+  if (!isMounted) {
+    return null;
+  }
 
-    return (
-        <>
-            <VaultModal />
-            <PasswordModal />
-            <ConfirmationModal />
-        </>
-    )
-}
+  return (
+    <>
+      <VaultModal />
+      <PasswordModal />
+    </>
+  );
+};

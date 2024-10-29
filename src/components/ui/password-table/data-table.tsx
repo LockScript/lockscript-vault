@@ -26,7 +26,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { useConfirmationModal } from "@/hooks/use-confirmation-modal";
+import { AlertModal } from "@/components/modals/alert-modal";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface DataTableProps<TData> {
   data: TData[];
@@ -41,10 +44,13 @@ export function DataTable<
     password: string;
   }
 >({ data, decrypt }: DataTableProps<TData>) {
+  const router = useRouter();
   const [decryptedData, setDecryptedData] = useState<TData[]>([]);
   const [visibility, setVisibility] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
-  const confirmationModal = useConfirmationModal();
+  const [modalLoading, setModalLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [currentId, setCurrentId] = useState<string | null>();
 
   const toggleVisibility = (id: string) => {
     setVisibility((prev) => ({
@@ -69,6 +75,22 @@ export function DataTable<
 
     decryptData();
   }, [data, decrypt]);
+
+  const onDelete = async () => {
+    if (!currentId) return;
+    try {
+      setModalLoading(true);
+      await axios.delete(`/api/passwords/${currentId}`);
+      router.refresh();
+      toast.success("Password deleted.");
+    } catch (error) {
+      toast.error("Something went wrong.");
+    } finally {
+      setModalLoading(false);
+      setOpen(false);
+      setCurrentId(null);
+    }
+  };
 
   const columnsWithVisibility: ColumnDef<TData>[] = [
     {
@@ -126,19 +148,28 @@ export function DataTable<
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(entry.website)}
+                onClick={() => {
+                  navigator.clipboard.writeText(entry.website);
+                  toast.success("Website copied.");
+                }}
               >
                 <Clipboard className="mr-2 h-4 w-4" />
                 Copy website
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(entry.username)}
+                onClick={() => {
+                  navigator.clipboard.writeText(entry.username);
+                  toast.success("Username copied.");
+                }}
               >
                 <Clipboard className="mr-2 h-4 w-4" />
                 Copy username
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(entry.password)}
+                onClick={() => {
+                  navigator.clipboard.writeText(entry.password);
+                  toast.success("Password copied.");
+                }}
               >
                 <Clipboard className="mr-2 h-4 w-4" />
                 Copy password
@@ -148,7 +179,12 @@ export function DataTable<
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setOpen(true);
+                  setCurrentId(entry.id);
+                }}
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>
@@ -166,50 +202,61 @@ export function DataTable<
   });
 
   return (
-    <div className="rounded-md border table-fixed w-full">
-      <Table className="table-fixed w-full">
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+    <>
+      <AlertModal
+        isOpen={open}
+        onConfirm={onDelete}
+        onClose={() => setOpen(false)}
+        loading={modalLoading}
+      />
+      <div className="rounded-md border table-fixed w-full">
+        <Table className="table-fixed w-full">
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={columnsWithVisibility.length}
-                className="h-24 text-center"
-              >
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columnsWithVisibility.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }
