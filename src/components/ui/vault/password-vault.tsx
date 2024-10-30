@@ -53,12 +53,6 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
     }-${clerkUser!.createdAt?.getUTCMinutes()}`;
   };
 
-  const [visibility, setVisibility] = useState<Record<string, boolean>>({});
-
-  const toggleVisibility = (id: string) => {
-    setVisibility((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
   const decrypt = async (encryptedData: string) => {
     const encryptionPassword = generateEncryptionPassword();
     const bytes = CryptoJS.AES.decrypt(encryptedData, encryptionPassword);
