@@ -63,7 +63,12 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton onClick={() => sidebar.setTab(item.title)} className="hover:bg-primary/10">
+                  <SidebarMenuButton
+                    onClick={() => sidebar.setTab(item.title)}
+                    className={`${
+                      sidebar.tab === item.title ? "bg-primary/10" : ""
+                    } hover:bg-primary/10`}
+                  >
                     <item.icon />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
