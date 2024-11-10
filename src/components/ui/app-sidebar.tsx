@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/hooks/use-sidebar-tab";
 import { UserButton } from "@clerk/nextjs";
+import { Icons } from "./icons";
+import {Separator} from "./separator";
 
 const items = [
   {
@@ -58,6 +60,12 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="mb-10">
             <UserButton />
+            <Separator orientation="vertical" className="ml-3 bg-primary/10" />
+            <div className="flex justify-end ml-3 items-center">
+              <span className="font-bold text-lg text-gray-900 mr-2">LockScript Vault</span>
+
+              <Icons.logo className="h-5 w-5" />
+            </div>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
