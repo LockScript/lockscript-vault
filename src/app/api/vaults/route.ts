@@ -1,10 +1,13 @@
 import prismadb from "@/lib/prismadb";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth, } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { createClerkClient } from '@clerk/backend'
+
+const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       return new NextResponse("Unauthenticated", { status: 401 });

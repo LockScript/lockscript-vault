@@ -78,7 +78,7 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
         </div>
       </div>
 
-      <h1 className="flex justify-center ml-auto text-5xl mb-10">Passwords</h1>
+      <h1 className="flex justify-center ml-auto text-5xl mb-10 text-balance font-semibold">Passwords</h1>
       <DataTable data={data} decrypt={decrypt} />
     </div>
   );

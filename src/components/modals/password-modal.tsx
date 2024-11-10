@@ -4,7 +4,7 @@ import { usePasswordModal } from "@/hooks/use-password-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
 import {
@@ -85,6 +85,7 @@ export const PasswordModal = () => {
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
+      form.reset();
     }
   };
 
@@ -98,7 +99,7 @@ export const PasswordModal = () => {
       <div className="space-y-4 py-2 pb-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <FormField
+            <Controller
               control={form.control}
               name="website"
               render={({ field }) => (
@@ -106,6 +107,7 @@ export const PasswordModal = () => {
                   <FormLabel>Website</FormLabel>
                   <FormControl>
                     <Input
+                      autoFocus
                       disabled={loading}
                       placeholder="Enter website"
                       {...field}
@@ -115,7 +117,7 @@ export const PasswordModal = () => {
                 </FormItem>
               )}
             />
-            <FormField
+            <Controller
               control={form.control}
               name="username"
               render={({ field }) => (
@@ -132,7 +134,7 @@ export const PasswordModal = () => {
                 </FormItem>
               )}
             />
-            <FormField
+            <Controller
               control={form.control}
               name="password"
               render={({ field }) => (

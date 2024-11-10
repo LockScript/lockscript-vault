@@ -26,7 +26,6 @@ import {
 import { useSidebar } from "@/hooks/use-sidebar-tab";
 import { UserButton } from "@clerk/nextjs";
 
-// Menu items.
 const items = [
   {
     title: "Passwords",
@@ -59,16 +58,12 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="mb-10">
             <UserButton />
-
-            <span className="flex justify-end ml-auto font-semibold">
-              LockScript Vault
-            </span>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton onClick={() => sidebar.setTab(item.title)}>
+                  <SidebarMenuButton onClick={() => sidebar.setTab(item.title)} className="hover:bg-primary/10">
                     <item.icon />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
