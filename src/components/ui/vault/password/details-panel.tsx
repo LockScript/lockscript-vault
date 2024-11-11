@@ -109,7 +109,7 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
         <Button variant="outline" size="icon" onClick={() => handleDelete()}>
           <Trash />
         </Button>
-        <Button
+        <Button 
           variant="outline"
           size="icon"
           onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
