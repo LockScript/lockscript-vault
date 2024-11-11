@@ -2,14 +2,9 @@
 
 import {
   Asterisk,
-  Calendar,
   CreditCard,
-  Home,
-  Inbox,
-  Key,
   KeySquare,
   Notebook,
-  Search,
   Settings,
 } from "lucide-react";
 
@@ -24,9 +19,9 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/hooks/use-sidebar-tab";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { Icons } from "./icons";
-import {Separator} from "./separator";
+import { Separator } from "./separator";
 
 const items = [
   {
@@ -53,32 +48,34 @@ const items = [
 
 export function AppSidebar() {
   const sidebar = useSidebar();
+  const { user } = useUser();
 
   return (
-    <Sidebar>
+    <Sidebar className="flex flex-col justify-between min-h-screen bg-gray-800 text-white">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="mb-10">
+          <SidebarGroupLabel className="mb-10 flex items-center justify-between p-4">
             <UserButton />
-            <Separator orientation="vertical" className="ml-3 bg-primary/10" />
-            <div className="flex justify-end ml-3 items-center">
-              <span className="font-bold text-lg text-gray-900 mr-2">LockScript Vault</span>
-
-              <Icons.logo className="h-5 w-5" />
+            <span>{user?.username}</span>
+            <div className="flex items-center space-x-3">
+              <Separator orientation="vertical" className="bg-gray-600 h-8" />
+              <Icons.logo className="h-6 w-6 text-primary" />
             </div>
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-2">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     onClick={() => sidebar.setTab(item.title)}
                     className={`${
-                      sidebar.tab === item.title ? "bg-primary/10" : ""
-                    } hover:bg-primary/10`}
+                      sidebar.tab === item.title
+                        ? "bg-primary/20 text-primary"
+                        : "text-gray-400"
+                    } hover:bg-primary/10 rounded-lg p-2 flex items-center space-x-3`}
                   >
-                    <item.icon />
-                    <span>{item.title}</span>
+                    <item.icon className="h-5 w-5" />
+                    <span className="font-medium">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

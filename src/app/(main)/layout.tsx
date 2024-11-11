@@ -24,10 +24,7 @@ export default function RootLayout({
       <ToastProvider />
       <ModalProvider />
       <AppSidebar />
-      <main>
-        <SidebarTrigger />
-        {children}
-      </main>
+      <main>{children}</main>
     </SidebarProvider>
   );
 }
