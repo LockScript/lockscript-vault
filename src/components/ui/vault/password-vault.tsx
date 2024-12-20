@@ -1,33 +1,16 @@
 "use client";
 
-import { usePasswordModal } from "@/hooks/use-password-modal";
-import { useUser } from "@clerk/nextjs";
-import { PasswordItem, Prisma } from "@prisma/client";
+import {usePasswordModal} from "@/hooks/use-password-modal";
+import {useUser} from "@clerk/nextjs";
+import {PasswordItem,Prisma} from "@prisma/client";
 import CryptoJS from "crypto-js";
-import {
-  AlertTriangle,
-  Check,
-  Edit,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  Globe,
-  Loader,
-  Mail,
-  PenSquare,
-  Plus,
-  Search,
-  Timer,
-  User,
-  Zap,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { Button } from "../button";
-import { Card } from "../card";
-import { ScrollArea } from "../scroll-area";
-import { Sheet, SheetContent } from "../sheet";
-import { DetailsPanel } from "./password/details-panel";
+import {Loader,Plus,Search} from "lucide-react";
+import {useEffect,useState} from "react";
+import {Button} from "../button";
+import {Card} from "../card";
+import {ScrollArea} from "../scroll-area";
+import {Sheet,SheetContent} from "../sheet";
+import {DetailsPanel} from "./password/details-panel";
 
 interface PasswordVaultProps {
   user: Prisma.UserGetPayload<{
@@ -46,7 +29,9 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any[]>([]);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [selectedVault, setSelectedVault] = useState<PasswordItem | null | undefined>(undefined);
+  const [selectedVault, setSelectedVault] = useState<
+    PasswordItem | null | undefined
+  >(undefined);
 
   useEffect(() => {
     const handleResize = () => {
@@ -180,14 +165,19 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
           </ScrollArea>
         </main>
 
-        {/* Details panel */}
-        <aside className="hidden md:block border-l w-2/3">
-          <DetailsPanel
-            selectedVault={selectedVault!}
-            onClose={() => setIsDetailsOpen(false)}
-            encrypt={encrypt}
-            setData={setSelectedVault}
-          />
+        <aside
+          className={`hidden md:block border-l ${
+            data.length > 0 ? "w-2/3" : "w-0"
+          }`}
+        >
+          {data.length > 0 && (
+            <DetailsPanel
+              selectedVault={selectedVault!}
+              onClose={() => setIsDetailsOpen(false)}
+              encrypt={encrypt}
+              setData={setSelectedVault}
+            />
+          )}
         </aside>
 
         {/* Details panel for mobile */}

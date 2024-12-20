@@ -18,10 +18,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useSidebar } from "@/hooks/use-sidebar-tab";
-import { UserButton, useUser } from "@clerk/nextjs";
-import { Icons } from "./icons";
-import { Separator } from "./separator";
+import {useSidebar} from "@/hooks/use-sidebar-tab";
+import {UserButton,useUser} from "@clerk/nextjs";
+import {Icons} from "./icons";
+import {Separator} from "./separator";
 
 const items = [
   {

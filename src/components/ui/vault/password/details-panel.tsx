@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
+import {PasswordItem} from "@prisma/client";
+import axios from "axios";
 import {
   Check,
   Edit,
-  User,
-  PenSquare,
   ExternalLink,
   Globe,
-  Zap,
+  PenSquare,
   Trash,
+  User,
+  Zap,
 } from "lucide-react";
+import {useEffect,useState} from "react";
 import toast from "react-hot-toast";
-import { PasswordItem } from "@prisma/client";
-import { Button } from "../../button";
-import axios from "axios";
+import {Button} from "../../button";
 
 interface DetailsPanelProps {
   selectedVault: PasswordItem | null;
@@ -38,8 +38,20 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
   });
 
   const handleCopy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
-    toast("Copied!");
+    if (!text) {
+      toast.error(`${field} is empty!`);
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast(`${field} copied!`);
+      })
+      .catch((error) => {
+        toast.error("Failed to copy!");
+        console.error("Clipboard copy failed: ", error);
+      });
   };
 
   const handleEdit = (field: string, value: string) => {
@@ -109,7 +121,7 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
         <Button variant="outline" size="icon" onClick={() => handleDelete()}>
           <Trash />
         </Button>
-        <Button 
+        <Button
           variant="outline"
           size="icon"
           onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
@@ -122,7 +134,6 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
         </Button>
       </div>
       <div>
-        {/* Username */}
         <button
           className="w-full group text-left border rounded-tr-xl rounded-tl-xl"
           onClick={() => handleCopy(selectedVault?.username ?? "", "Username")}
@@ -179,7 +190,6 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
           </div>
         </button>
 
-        {/* Website */}
         <button
           className="w-full group text-left border rounded-bl-xl rounded-br-xl"
           onClick={() => handleCopy(selectedVault?.website ?? "", "Website")}
@@ -204,14 +214,24 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
               </div>
             </div>
             <div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-foreground"
-                onClick={() => window.open(selectedVault?.website, "_blank")}
+              <div
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (selectedVault?.website) {
+                    const url =
+                      selectedVault.website.startsWith("http://") ||
+                      selectedVault.website.startsWith("https://")
+                        ? selectedVault.website
+                        : `https://${selectedVault.website}`;
+                    window.open(url, "_blank");
+                  } else {
+                    toast.error("No website URL available!");
+                  }
+                }}
               >
                 <ExternalLink className="h-4 w-4" />
-              </Button>
+              </div>
             </div>
           </div>
         </button>

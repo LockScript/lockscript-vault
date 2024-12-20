@@ -1,10 +1,10 @@
 "use client";
 
-import { useSidebar } from "@/hooks/use-sidebar-tab";
-import { useVaultModal } from "@/hooks/use-vault-modal";
-import { Prisma } from "@prisma/client";
-import { useEffect } from "react";
-import { Icons } from "../icons";
+import {useSidebar} from "@/hooks/use-sidebar-tab";
+import {useVaultModal} from "@/hooks/use-vault-modal";
+import {Prisma} from "@prisma/client";
+import {useEffect} from "react";
+import {Icons} from "../icons";
 import PasswordVault from "./password-vault";
 
 interface VaultPageProps {

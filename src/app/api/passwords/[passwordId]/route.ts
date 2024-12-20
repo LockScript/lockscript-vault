@@ -1,8 +1,11 @@
 import prismadb from "@/lib/prismadb";
-import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import {auth} from "@clerk/nextjs/server";
+import {NextResponse} from "next/server";
 
-export async function DELETE(req: Request, props: { params: Promise<{ passwordId: Promise<string> }> }) {
+export async function DELETE(
+  req: Request,
+  props: { params: Promise<{ passwordId: Promise<string> }> }
+) {
   const params = await props.params;
   try {
     const { userId } = await auth();
@@ -40,7 +43,10 @@ export async function DELETE(req: Request, props: { params: Promise<{ passwordId
   }
 }
 
-export async function PATCH(req: Request, props: { params: Promise<{ passwordId: Promise<string> }> }) {
+export async function PATCH(
+  req: Request,
+  props: { params: Promise<{ passwordId: Promise<string> }> }
+) {
   const params = await props.params;
   try {
     const { userId } = await auth();
