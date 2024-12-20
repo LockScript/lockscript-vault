@@ -13,6 +13,7 @@ import {
 import {useEffect,useState} from "react";
 import toast from "react-hot-toast";
 import {Button} from "../../button";
+import {revalidatePath} from "next/cache";
 
 interface DetailsPanelProps {
   selectedVault: PasswordItem | null;

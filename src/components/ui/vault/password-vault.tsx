@@ -111,7 +111,6 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Main content area */}
         <main className="flex-1 flex flex-col overflow-hidden w-full md:w-auto">
           <div className="p-4 border-b">
             <div className="relative">
