@@ -18,6 +18,7 @@ interface VaultPageProps {
   }> | null;
 }
 
+
 const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const vaultModal = useVaultModal();
   const sidebar = useSidebar();

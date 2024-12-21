@@ -79,6 +79,7 @@ export async function PATCH(
       },
       data: passwordData,
     });
+    
 
     return NextResponse.json(updatedPasswordItem);
   } catch (error) {

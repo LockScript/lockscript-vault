@@ -1,16 +1,17 @@
 "use client";
 
-import {usePasswordModal} from "@/hooks/use-password-modal";
-import {useUser} from "@clerk/nextjs";
-import {PasswordItem,Prisma} from "@prisma/client";
+import { usePasswordModal } from "@/hooks/use-password-modal";
+import { useUser } from "@clerk/nextjs";
+import { PasswordItem, Prisma } from "@prisma/client";
 import CryptoJS from "crypto-js";
-import {Loader,Plus,Search} from "lucide-react";
-import {useEffect,useState} from "react";
-import {Button} from "../button";
-import {Card} from "../card";
-import {ScrollArea} from "../scroll-area";
-import {Sheet,SheetContent} from "../sheet";
-import {DetailsPanel} from "./password/details-panel";
+import { Loader, Plus, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "../button";
+import { Card } from "../card";
+import { ScrollArea } from "../scroll-area";
+import { Sheet, SheetContent } from "../sheet";
+import { DetailsPanel } from "./password/details-panel";
+import Image from "next/image";
 
 interface PasswordVaultProps {
   user: Prisma.UserGetPayload<{
@@ -101,6 +102,9 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
 
   const toggleDetails = () => setIsDetailsOpen(!isDetailsOpen);
 
+  const getFaviconUrl = (domain: string) =>
+    `https://s2.googleusercontent.com/s2/favicons?domain=${domain}&sz=128`;
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <header className="flex items-center justify-between p-4 border-b md:hidden">
@@ -146,11 +150,13 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      {item.website && item.website[0]
-                        ? item.website[0].toUpperCase()
-                        : "?"}{" "}
-                    </div>
+                    <Image
+                      alt={item.website.substring(0, 1).toUpperCase()}
+                      className="h-10 w-10 rounded-full bg-primary/10 object-cover flex items-center justify-center"
+                      src={getFaviconUrl(item.website)}
+                      height={40}
+                      width={40}
+                    />
                     <div>
                       <div className="font-medium">{item.website}</div>
                       <div className="text-sm text-muted-foreground">

@@ -4,6 +4,8 @@ import {
   Check,
   Edit,
   ExternalLink,
+  Eye,
+  EyeClosed,
   Globe,
   PenSquare,
   Trash,
@@ -14,6 +16,7 @@ import {useEffect,useState} from "react";
 import toast from "react-hot-toast";
 import {Button} from "../../button";
 import {revalidatePath} from "next/cache";
+import {useRouter} from "next/navigation";
 
 interface DetailsPanelProps {
   selectedVault: PasswordItem | null;
@@ -37,6 +40,7 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
     password: selectedVault?.password || "",
     website: selectedVault?.website || "",
   });
+  const router = useRouter();
 
   const handleCopy = (text: string, field: string) => {
     if (!text) {
@@ -69,8 +73,11 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
       } else {
         toast("Failed to delete item");
       }
+      
+      router.refresh();
     } catch (error) {
       toast("Error deleting item");
+      console.log(error)
     }
   };
 
@@ -96,6 +103,8 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
       } else {
         toast("Failed to save changes");
       }
+
+      router.refresh();
     } catch (error) {
       toast("Error saving changes");
     }
@@ -186,6 +195,17 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
                     {"*".repeat(selectedVault?.password.length ?? 8)}
                   </div>
                 )}
+              </div>
+            </div>
+            <div>
+              <div
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowPassword((prev) => !prev);
+                }}
+              >
+                {showPassword ? <Eye className="h-4 w-4" /> : <EyeClosed className="h-4 w-4" />}
               </div>
             </div>
           </div>
