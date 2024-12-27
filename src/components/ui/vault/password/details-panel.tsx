@@ -1,4 +1,4 @@
-import {PasswordItem} from "@prisma/client";
+import { PasswordItem } from "@prisma/client";
 import axios from "axios";
 import {
   Check,
@@ -8,15 +8,24 @@ import {
   EyeClosed,
   Globe,
   PenSquare,
+  RefreshCcw,
   Trash,
   User,
   Zap,
 } from "lucide-react";
-import {useEffect,useState} from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import {Button} from "../../button";
-import {revalidatePath} from "next/cache";
-import {useRouter} from "next/navigation";
+import { Button } from "../../button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 interface DetailsPanelProps {
   selectedVault: PasswordItem | null;
@@ -25,6 +34,7 @@ interface DetailsPanelProps {
   setData: React.Dispatch<
     React.SetStateAction<PasswordItem | null | undefined>
   >;
+  setDetailsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const DetailsPanel: React.FC<DetailsPanelProps> = ({
@@ -32,14 +42,30 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
   onClose,
   encrypt,
   setData,
+  setDetailsOpen,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordGeneratorOpen, setPasswordGeneratorOpen] = useState(false);
   const [editedValues, setEditedValues] = useState({
     username: selectedVault?.username || "",
     password: selectedVault?.password || "",
     website: selectedVault?.website || "",
   });
+  const [passwordSettings, setPasswordSettings] = useState({
+    length: 12,
+    includeUppercase: true,
+    includeNumbers: true,
+    includeSymbols: true,
+  });
+
+  const handlePasswordSettingChange = (
+    field: string,
+    value: boolean | number
+  ) => {
+    setPasswordSettings((prev) => ({ ...prev, [field]: value }));
+  };
+
   const router = useRouter();
 
   const handleCopy = (text: string, field: string) => {
@@ -63,21 +89,40 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
     setEditedValues((prev) => ({ ...prev, [field]: value }));
   };
 
+  const generatePassword = (settings: typeof passwordSettings) => {
+    const charsetLower = "abcdefghijklmnopqrstuvwxyz";
+    const charsetUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const charsetNumbers = "0123456789";
+    const charsetSymbols = "!@#$%^&*()_+[]{}|;:',.<>?";
+    let charset = charsetLower;
+
+    if (settings.includeUppercase) charset += charsetUpper;
+    if (settings.includeNumbers) charset += charsetNumbers;
+    if (settings.includeSymbols) charset += charsetSymbols;
+
+    let password = "";
+    for (let i = 0; i < settings.length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+  };
+
   const handleDelete = async () => {
     try {
       const response = await axios.delete(
         `/api/passwords/${selectedVault?.id}`
       );
       if (response.status === 200) {
-        toast("Item Deleted");
+        toast.success("Item Deleted");
       } else {
-        toast("Failed to delete item");
+        toast.error("Failed to delete item");
       }
-      
+
       router.refresh();
+      setDetailsOpen(false);
     } catch (error) {
       toast("Error deleting item");
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -125,28 +170,49 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-lg font-semibold">{selectedVault?.website}</h2>
+        <div className="ml-1">
+          <h2 className="text-xl font-semibold">
+            <a
+              className="text-primary font-bold"
+              href={
+                selectedVault?.website?.startsWith("http://") ||
+                selectedVault?.website?.startsWith("https://")
+                  ? selectedVault.website
+                  : `https://${selectedVault?.website}`
+              }
+              target="_blank"
+              rel="noreferrer"
+            >
+              {selectedVault?.website}
+            </a>
+          </h2>
         </div>
-        <Button variant="outline" size="icon" onClick={() => handleDelete()}>
-          <Trash />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-        >
-          {isEditing ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <Edit className="h-4 w-4" />
-          )}
-        </Button>
+        <div className="flex space-x-2 mr-5">
+          <Button variant="outline" size="icon" onClick={() => handleDelete()}>
+            <Trash />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+          >
+            {isEditing ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Edit className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
+
       <div>
         <button
           className="w-full group text-left border rounded-tr-xl rounded-tl-xl"
-          onClick={() => handleCopy(selectedVault?.username ?? "", "Username")}
+          onClick={() => {
+            if (!isEditing) {
+              handleCopy(selectedVault?.username ?? "", "Username");
+            }
+          }}
         >
           <div className="flex items-center gap-3 px-6 py-4 rounded-lg hover:bg-muted/50">
             <User className="h-5 w-5 text-muted-foreground" />
@@ -170,9 +236,15 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
           </div>
         </button>
 
-        <button
+        <div
           className="w-full group text-left border"
-          onClick={() => handleCopy(selectedVault?.password ?? "", "Password")}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!passwordGeneratorOpen && !isEditing) {
+              console.log(passwordGeneratorOpen);
+              handleCopy(selectedVault?.password ?? "", "Password");
+            }
+          }}
         >
           <div className="flex items-center gap-3 px-6 py-4 rounded-lg hover:bg-muted/50">
             <PenSquare className="h-5 w-5 text-muted-foreground" />
@@ -181,7 +253,7 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
               <div className="font-medium w-full leading-normal">
                 {isEditing ? (
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={editedValues?.password}
                     onChange={(e) => handleEdit("password", e.target.value)}
                     className="w-full h-[38px] leading-[38px] bg-transparent border-b-2 focus:outline-none"
@@ -205,15 +277,133 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = ({
                   setShowPassword((prev) => !prev);
                 }}
               >
-                {showPassword ? <Eye className="h-4 w-4" /> : <EyeClosed className="h-4 w-4" />}
+                {showPassword ? (
+                  <Eye className="h-4 w-4" />
+                ) : (
+                  <EyeClosed className="h-4 w-4" />
+                )}
               </div>
             </div>
+            <Dialog
+              onOpenChange={(open) => {
+                setTimeout(() => setPasswordGeneratorOpen(open), 100);
+              }}
+              open={passwordGeneratorOpen}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-foreground cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <RefreshCcw className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent
+                className="sm:max-w-[425px]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <DialogHeader>
+                  <DialogTitle>Password Generator</DialogTitle>
+                  <DialogDescription>
+                    Generate secure passwords.
+                  </DialogDescription>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Length</label>
+                      <input
+                        type="number"
+                        min={4}
+                        max={128}
+                        value={passwordSettings.length}
+                        onChange={(e) =>
+                          handlePasswordSettingChange(
+                            "length",
+                            Number(e.target.value)
+                          )
+                        }
+                        className="w-16 border rounded-md px-2 py-1"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Include Uppercase</label>
+                      <input
+                        type="checkbox"
+                        checked={passwordSettings.includeUppercase}
+                        onChange={(e) =>
+                          handlePasswordSettingChange(
+                            "includeUppercase",
+                            e.target.checked
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Include Numbers</label>
+                      <input
+                        type="checkbox"
+                        checked={passwordSettings.includeNumbers}
+                        onChange={(e) =>
+                          handlePasswordSettingChange(
+                            "includeNumbers",
+                            e.target.checked
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Include Symbols</label>
+                      <input
+                        type="checkbox"
+                        checked={passwordSettings.includeSymbols}
+                        onChange={(e) =>
+                          handlePasswordSettingChange(
+                            "includeSymbols",
+                            e.target.checked
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+                  ;
+                  <DialogFooter className="flex justify-start">
+                    <Button
+                      variant="outline"
+                      onClick={(prev) => setPasswordGeneratorOpen(!prev)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setEditedValues((prev) => ({
+                          ...prev,
+                          password: generatePassword(passwordSettings),
+                        }));
+                        toast("Password Generated!");
+                        setPasswordGeneratorOpen(false);
+                      }}
+                    >
+                      Generate
+                    </Button>{" "}
+                  </DialogFooter>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
           </div>
-        </button>
+        </div>
 
         <button
           className="w-full group text-left border rounded-bl-xl rounded-br-xl"
-          onClick={() => handleCopy(selectedVault?.website ?? "", "Website")}
+          onClick={() => {
+            if (!isEditing) {
+              handleCopy(selectedVault?.website ?? "", "Website");
+            }
+          }}
         >
           <div className="flex items-center gap-3 px-6 py-4 rounded-lg hover:bg-muted/50">
             <Globe className="h-5 w-5 text-muted-foreground" />

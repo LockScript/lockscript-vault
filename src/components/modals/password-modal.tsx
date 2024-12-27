@@ -1,25 +1,25 @@
 "use client";
 
 import { usePasswordModal } from "@/hooks/use-password-modal";
+import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import CryptoJS from "crypto-js";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
+import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
-  FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Modal } from "../ui/modal";
-import { Button } from "../ui/button";
-import CryptoJS from "crypto-js";
-import { useUser } from "@clerk/nextjs";
+import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
   website: z.string().min(1, "Website is required"),
@@ -31,6 +31,7 @@ export const PasswordModal = () => {
   const passwordModal = usePasswordModal();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,7 +79,7 @@ export const PasswordModal = () => {
         password: encryptedPassword,
       });
 
-      window.location.reload();
+      router.refresh()
 
       toast.success("Password created successfully.");
     } catch (error) {
@@ -86,6 +87,7 @@ export const PasswordModal = () => {
     } finally {
       setLoading(false);
       form.reset();
+      passwordModal.onClose();
     }
   };
 

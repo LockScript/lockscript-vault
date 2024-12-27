@@ -20,11 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SidebarProvider>
-      <ToastProvider />
+    <>
       <ModalProvider />
-      <AppSidebar />
-      <main>{children}</main>
-    </SidebarProvider>
+      <SidebarProvider>
+        <ToastProvider />
+        <AppSidebar />
+        <main>{children}</main>
+      </SidebarProvider>
+    </>
   );
 }

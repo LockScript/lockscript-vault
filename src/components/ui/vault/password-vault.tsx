@@ -12,6 +12,7 @@ import { ScrollArea } from "../scroll-area";
 import { Sheet, SheetContent } from "../sheet";
 import { DetailsPanel } from "./password/details-panel";
 import Image from "next/image";
+import {SidebarTrigger} from "../sidebar";
 
 interface PasswordVaultProps {
   user: Prisma.UserGetPayload<{
@@ -106,8 +107,9 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
     `https://s2.googleusercontent.com/s2/favicons?domain=${domain}&sz=128`;
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
+    <div className="flex flex-col h-screen bg-background text-foreground w-screen md:w-full">
       <header className="flex items-center justify-between p-4 border-b md:hidden">
+        <SidebarTrigger />
         <div className="font-semibold">Password Manager</div>
         <Button variant="ghost" size="icon" onClick={passwordModal.onOpen}>
           <Plus className="h-6 w-6" />
@@ -181,11 +183,11 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
               onClose={() => setIsDetailsOpen(false)}
               encrypt={encrypt}
               setData={setSelectedVault}
+              setDetailsOpen={setIsDetailsOpen}
             />
           )}
         </aside>
 
-        {/* Details panel for mobile */}
         {isDetailsOpen && (
           <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
             <SheetContent side="right" className="w-full p-0 md:hidden">
@@ -194,6 +196,7 @@ const PasswordVault: React.FC<PasswordVaultProps> = ({ user }) => {
                 onClose={() => setIsDetailsOpen(false)}
                 encrypt={encrypt}
                 setData={setSelectedVault}
+                setDetailsOpen={setIsDetailsOpen}
               />
             </SheetContent>
           </Sheet>

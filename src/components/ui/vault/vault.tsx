@@ -1,10 +1,10 @@
 "use client";
 
-import {useSidebar} from "@/hooks/use-sidebar-tab";
-import {useVaultModal} from "@/hooks/use-vault-modal";
-import {Prisma} from "@prisma/client";
-import {useEffect} from "react";
-import {Icons} from "../icons";
+import { useSidebar } from "@/hooks/use-sidebar-tab";
+import { useVaultModal } from "@/hooks/use-vault-modal";
+import { Prisma } from "@prisma/client";
+import { useEffect } from "react";
+import { Icons } from "../icons";
 import PasswordVault from "./password-vault";
 
 interface VaultPageProps {
@@ -17,7 +17,6 @@ interface VaultPageProps {
     };
   }> | null;
 }
-
 
 const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const vaultModal = useVaultModal();
@@ -34,11 +33,9 @@ const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
       {sidebar.tab === "Passwords" && user ? (
         <PasswordVault user={user} />
       ) : (
-        <div className="flex flex-col justify-center items-center h-full w-full text-center">
-          <Icons.logo className="h-44 w-44 mb-6" />
-          <div className="text-2xl font-semibold">
-            Please log in to access your vault.
-          </div>
+        <div className="h-screen w-screen flex justify-center items-center">
+          <Icons.logo className="w-20 h-20" />
+          <h1 className="font-bold tracking-tig text-3xl">Not Complete</h1>
         </div>
       )}
     </div>

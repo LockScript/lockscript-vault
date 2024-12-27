@@ -17,8 +17,8 @@ export const ModalProvider = () => {
 
   return (
     <>
-      <VaultModal />
       <PasswordModal />
+      <VaultModal />
     </>
   );
 };
