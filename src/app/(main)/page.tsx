@@ -1,26 +1,15 @@
-import {Icons} from "@/components/ui/icons";
-import VaultPage from "@/components/ui/vault/vault";
+import { Icons } from "@/components/ui/icons";
+import { VaultPage } from "@/components/ui/password-manager";
 import prismadb from "@/lib/prismadb";
-import {RedirectToSignIn,SignedOut} from "@clerk/nextjs";
-import {auth} from "@clerk/nextjs/server";
+import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const Page = async () => {
-  const { userId } = await auth();
+  const { userId, redirectToSignIn } = await auth();
 
-  if (!userId) {
-    return (
-      <div className="h-screen w-[calc(100vw-var(--sidebar-width))] flex justify-center items-center animate-pulse">
-        <Icons.logo className="w-40 h-40" />
-        <h1 className="font-bold tracking-tig text-7xl">Authenticating</h1>
-
-        <SignedOut>
-          <RedirectToSignIn />
-        </SignedOut>
-      </div>
-    );
-  }
+  if (!userId) return redirectToSignIn();
 
   const user = await prismadb.user.findUnique({
     where: {

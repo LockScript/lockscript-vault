@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "LockScript - Vault",
@@ -17,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <ClerkProvider>
         <body>
+          <Toaster />
           <main>{children}</main>
         </body>
       </ClerkProvider>
