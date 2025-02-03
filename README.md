@@ -8,8 +8,12 @@ LockScript Vault is an open-source secure vault for passwords, cards, notes, and
 - Typescript
 - ShadCN
 - Prisma
+- Zod
 
-## APIs
-- `/api/vault`
-  - Methods:
-    - **POST** : JSON Body: {`key`}
+## How to contribute
+
+We accept contributions from the community, but you must follow some rules:
+
+1. Document your changes.
+2. Specifically state ANY new dependencies you have added.
+3. Test your changes.

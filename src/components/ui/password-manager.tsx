@@ -157,7 +157,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
       <nav className="space-y-2">
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 rounded-xl px-4 py-3 text-rose-600 transition-all hover:bg-rose-100 hover:text-rose-700"
+          className={cn("w-full justify-start gap-3 rounded-xl px-4 py-3 transition-all hover:bg-rose-100 hover:text-rose-700", activeTab === "passwords" && "bg-rose-50 text-rose-700")}
           onClick={() => {
             setActiveTab("passwords");
             setIsSidebarOpen(false);
@@ -168,7 +168,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         </Button>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 rounded-xl px-4 py-3 text-gray-600 transition-all hover:bg-rose-50 hover:text-rose-600"
+          className={cn("w-full justify-start gap-3 rounded-xl px-4 py-3 transition-all hover:bg-rose-100 hover:text-rose-700", activeTab === "notes" && "bg-rose-50 text-rose-700")}
           onClick={() => {
             setActiveTab("notes");
             setIsSidebarOpen(false);
@@ -179,7 +179,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         </Button>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 rounded-xl px-4 py-3 text-gray-600 transition-all hover:bg-rose-50 hover:text-rose-600"
+          className={cn("w-full justify-start gap-3 rounded-xl px-4 py-3 transition-all hover:bg-rose-100 hover:text-rose-700", activeTab === "pins" && "bg-rose-50 text-rose-700")}
           onClick={() => {
             setActiveTab("pins");
             setIsSidebarOpen(false);
@@ -190,7 +190,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         </Button>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 rounded-xl px-4 py-3 text-gray-600 transition-all hover:bg-rose-50 hover:text-rose-600"
+          className={cn("w-full justify-start gap-3 rounded-xl px-4 py-3 transition-all hover:bg-rose-100 hover:text-rose-700", activeTab === "cards" && "bg-rose-50 text-rose-700")}
           onClick={() => {
             setActiveTab("cards");
             setIsSidebarOpen(false);
@@ -203,7 +203,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
       <div className="mt-auto pt-6">
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 rounded-xl px-4 py-3 text-gray-600 transition-all hover:bg-rose-50 hover:text-rose-600"
+          className={cn("w-full justify-start gap-3 rounded-xl px-4 py-3 transition-all hover:bg-rose-100 hover:text-rose-700", activeTab === "settings" && "bg-rose-50 text-rose-700")}
         >
           <Settings className="h-5 w-5" />
           Settings

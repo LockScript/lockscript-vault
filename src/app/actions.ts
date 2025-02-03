@@ -1,7 +1,7 @@
 "use server";
 
 import prismadb from "@/lib/prismadb";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 
 export async function updatePasswordItem(
   id: string,
@@ -82,13 +82,9 @@ export async function createPasswordItem(
 ) {
   const clerkUser = await currentUser();
 
-  if (!clerkUser) {
-    throw new Error("User not authenticated");
-  }
-
   const user = await prismadb.user.findUnique({
     where: {
-      id: clerkUser.id,
+      id: clerkUser?.id,
     },
     include: {
       passwordItems: true,

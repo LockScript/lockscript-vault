@@ -82,7 +82,7 @@ export function EditPasswordDialog({ isOpen, onClose, entry }: EditPasswordDialo
             <DialogTitle>{entry ? 'Edit Password Entry' : 'Add New Password Entry'}</DialogTitle>
           </div>
           <DialogDescription>
-            Make changes to your password entry here. Click save when you're done.
+            Make changes to your password entry here. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
