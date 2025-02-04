@@ -1,5 +1,5 @@
 import { Icons } from "@/components/ui/icons";
-import { VaultPage } from "@/components/ui/password-manager";
+import {VaultPage} from "@/components/vault/vault-page";
 import prismadb from "@/lib/prismadb";
 import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";

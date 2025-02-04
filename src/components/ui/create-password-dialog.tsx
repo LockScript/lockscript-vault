@@ -1,13 +1,12 @@
-import { useState } from "react";
-import { Button } from "./button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
-import { Input } from "./input";
-import { createPasswordItem } from "@/app/actions";
-import { encrypt } from "./password-manager";
-import { useUser } from "@clerk/nextjs";
-import {useRouter} from "next/navigation";
-import { z } from "zod";
+import {createPasswordItem} from "@/app/actions";
+import {encrypt} from "@/utils/encryption";
+import {useUser} from "@clerk/nextjs";
+import {useState} from "react";
 import toast from "react-hot-toast";
+import {z} from "zod";
+import {Button} from "./button";
+import {Dialog,DialogContent,DialogHeader,DialogTitle} from "./dialog";
+import {Input} from "./input";
 
 const websiteSchema = z.string().url();
 
@@ -23,9 +22,8 @@ export const CreatePasswordDialog = ({
   const [website, setWebsite] = useState("");
   const [password, setPassword] = useState("");
   const { user: clerkuser } = useUser();
-  const router = useRouter();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const websiteValidation = websiteSchema.safeParse(website);
   
     if (!websiteValidation.success) {
@@ -33,7 +31,7 @@ export const CreatePasswordDialog = ({
       return;
     }
   
-    createPasswordItem(
+    await createPasswordItem(
       encrypt(username, clerkuser),
       encrypt(website, clerkuser),
       encrypt(password, clerkuser)
@@ -41,7 +39,6 @@ export const CreatePasswordDialog = ({
     toast.success("Password created");
     onClose();
   };
-  
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

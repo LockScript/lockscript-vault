@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/dialog"
 import { Globe } from 'lucide-react'
 import {updatePasswordItem} from "@/app/actions"
-import {encrypt} from "./password-manager"
 import {useUser} from "@clerk/nextjs"
 import {useState} from "react"
 import {useRouter} from "next/navigation"
 import { z } from "zod";
 import toast from "react-hot-toast"
+import {encrypt} from "@/utils/encryption"
 
 interface PasswordEntry {
   id: string
@@ -82,7 +82,7 @@ export function EditPasswordDialog({ isOpen, onClose, entry }: EditPasswordDialo
             <DialogTitle>{entry ? 'Edit Password Entry' : 'Add New Password Entry'}</DialogTitle>
           </div>
           <DialogDescription>
-            Make changes to your password entry here. Click save when you&apos;re done.
+            Make changes to your password entry here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

@@ -1,7 +1,7 @@
 "use server";
 
 import prismadb from "@/lib/prismadb";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 export async function updatePasswordItem(
   id: string,
@@ -9,11 +9,15 @@ export async function updatePasswordItem(
   newWebsite: string,
   newPassword: string
 ) {
-  const clerkUser = await currentUser();
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
 
   const user = await prismadb.user.findUnique({
     where: {
-      id: clerkUser?.id,
+      id: userId,
     },
     include: {
       passwordItems: true,
@@ -45,11 +49,15 @@ export async function updatePasswordItem(
 }
 
 export async function deletePasswordItem(id: string) {
-  const clerkUser = await currentUser();
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
 
   const user = await prismadb.user.findUnique({
     where: {
-      id: clerkUser?.id,
+      id: userId,
     },
     include: {
       passwordItems: true,
@@ -80,11 +88,15 @@ export async function createPasswordItem(
   website: string,
   password: string
 ) {
-  const clerkUser = await currentUser();
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
 
   const user = await prismadb.user.findUnique({
     where: {
-      id: clerkUser?.id,
+      id: userId,
     },
     include: {
       passwordItems: true,
@@ -110,12 +122,18 @@ export async function createPasswordItem(
 }
 
 export async function instantiateVault() {
-  const clerkUser = await currentUser();
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await currentUser()
 
   const vault = await prismadb.user.create({
     data: {
-      id: clerkUser?.id,
-      username: clerkUser?.username!,
+      id: userId,
+      username: user?.username!,
     },
     include: {
       passwordItems: true,
