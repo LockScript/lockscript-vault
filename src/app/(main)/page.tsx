@@ -3,6 +3,7 @@ import {VaultPage} from "@/components/vault/vault-page";
 import prismadb from "@/lib/prismadb";
 import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
+import {instantiateVault} from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,10 @@ const Page = async () => {
       noteItems: true,
     },
   });
+
+  if (!user) {
+    instantiateVault();
+  }
 
   return <VaultPage user={user} />;
 };

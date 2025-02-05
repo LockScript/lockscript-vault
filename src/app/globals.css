@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
@@ -93,7 +95,7 @@
   }
 
   * {
-    border-color: hsl(var(--border) / var(--tw-border-opacity, 1));
+    @apply border-border;
   }
 
   @supports (font-variation-settings: normal) {
@@ -104,7 +106,6 @@
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-background text-foreground;
   }
 }
