@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { UserButton } from "@clerk/nextjs";
-import { CreditCard, Key, Pin, Settings, StickyNote, X } from 'lucide-react';
+import {Button} from "@/components/ui/button";
+import {cn} from "@/lib/utils";
+import {UserButton} from "@clerk/nextjs";
+import {CreditCard,Key,Pin,Settings,StickyNote,X} from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;

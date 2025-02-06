@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "prisma generate"
+    "generate": "npx prisma generate",
+    "push": "npx prisma db push",
+    "find:unused": "next-unused"
   },
   "dependencies": {
     "@clerk/backend": "^1.23.11",
@@ -79,8 +81,15 @@
     "@types/react-dom": "^18",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
+    "next-unused": "^0.0.6",
     "postcss": "^8",
     "tailwindcss": "^3.4.15",
     "typescript": "^5"
+  },
+  "next-unused": {
+    "alias": {},
+    "include": [],
+    "exclude": [],
+    "entrypoints": []
   }
 }

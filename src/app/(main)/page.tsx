@@ -1,8 +1,6 @@
-import { Icons } from "@/components/ui/icons";
 import {VaultPage} from "@/components/vault/vault-page";
 import prismadb from "@/lib/prismadb";
-import { RedirectToSignIn, SignedOut } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import {auth} from "@clerk/nextjs/server";
 import {instantiateVault} from "../actions";
 
 export const dynamic = "force-dynamic";

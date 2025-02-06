@@ -1,15 +1,15 @@
-import { createPasswordItem } from "@/app/actions";
-import { encrypt } from "@/utils/encryption";
-import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { z } from "zod";
-import { Button } from "./button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
-import { Input } from "./input";
-import { Loader2 } from "lucide-react";
+"use client"
 
-const websiteSchema = z.string().url();
+import {createPasswordItem} from "@/app/actions";
+import {Button} from "@/components/ui/button";
+import {Dialog,DialogContent,DialogFooter,DialogHeader,DialogTitle} from "@/components/ui/dialog";
+import {Input} from "@/components/ui/input";
+import {encrypt} from "@/utils/encryption";
+import {useUser} from "@clerk/nextjs";
+import {Loader2} from "lucide-react";
+import {useState} from "react";
+import toast from "react-hot-toast";
+import {z} from "zod";
 
 export const CreatePasswordDialog = ({
   open,
@@ -128,14 +128,16 @@ export const CreatePasswordDialog = ({
             </div>
           </div>
         </div>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
-          </Button>
-        </div>
+        <DialogFooter>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

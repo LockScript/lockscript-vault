@@ -1,39 +1,21 @@
 "use client";
 
-import { deletePasswordItem, instantiateVault } from "@/app/actions";
-import { Button } from "@/components/ui/button";
-import { CreatePasswordDialog } from "@/components/ui/create-password-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { EditPasswordDialog } from "@/components/ui/edit-password-dialog";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { decrypt } from "@/utils/encryption";
-import { useUser } from "@clerk/nextjs";
-import {
-  Globe,
-  MoreVertical,
-  Pencil,
-  Plus,
-  SquareArrowOutUpRight,
-  Trash,
-  User,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import * as React from "react";
-import toast from "react-hot-toast";
-import { Sidebar } from "./sidebar";
-import { PasswordDetails } from "./password-details";
-import { EmptyState } from "./empty-state";
-import { Prisma } from "@prisma/client";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import {deletePasswordItem} from "@/app/actions";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {ScrollArea} from "@/components/ui/scroll-area";
+import {Sheet,SheetContent} from "@/components/ui/sheet";
+import {CreatePasswordDialog} from "@/components/vault/dialogs/create-password-dialog";
+import {EditPasswordDialog} from "@/components/vault/dialogs/edit-password-dialog";
+import {cn} from "@/lib/utils";
+import {decrypt} from "@/utils/encryption";
+import {useUser} from "@clerk/nextjs";
+import {Prisma} from "@prisma/client";
+import {Plus,SquareArrowOutUpRight,Trash,User} from "lucide-react";
 import Image from "next/image";
+import {useRouter} from "next/navigation";
+import {useEffect,useState} from "react";
+import toast from "react-hot-toast";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -41,6 +23,9 @@ import {
   ContextMenuLabel,
   ContextMenuTrigger,
 } from "../ui/context-menu";
+import {EmptyState} from "./empty-state";
+import {PasswordDetails} from "./password-details";
+import {Sidebar} from "./sidebar";
 
 interface PasswordEntry {
   id: string;
@@ -66,6 +51,8 @@ interface VaultPageProps {
 
 export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const router = useRouter();
+  const { user: clerkUser } = useUser();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("passwords");
   const [selectedEntry, setSelectedEntry] = useState<PasswordEntry | null>(
@@ -75,8 +62,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredEntries, setFilteredEntries] = useState<PasswordEntry[]>([]);
-  const { user: clerkUser } = useUser();
-  const [passwords, setPasswords] = React.useState<PasswordEntry[]>([]);
+  const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
 
   useEffect(() => {
     if (!clerkUser) return;
@@ -105,10 +91,6 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
     setSearchQuery(e.target.value);
     // Filter entries based on search query
     // ... (filter entries logic)
-  };
-
-  const handleSelectEntry = (entry: PasswordEntry) => {
-    setSelectedEntry(entry);
   };
 
   const handleEditEntry = () => {
@@ -165,7 +147,6 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                     <ContextMenu key={password.id}>
                       <ContextMenuTrigger>
                         <Button
-                          key={password.id}
                           variant="ghost"
                           className={cn(
                             "w-full justify-start rounded-xl p-6 text-left transition-all hover:bg-rose-50/50",
@@ -202,8 +183,12 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                         </ContextMenuLabel>
                         <ContextMenuItem
                           onClick={() => {
-                            window.open(password.website, "_blank");
-                            toast.success("Website opened successfully");
+                            try {
+                              window.open(password.website, "_blank");
+                              toast.success("Website opened successfully");
+                            } catch (error) {
+                              toast.error("Failed to open website");
+                            }
                           }}
                         >
                           <SquareArrowOutUpRight className="h-4 w-4 mr-2" />
@@ -211,8 +196,12 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                         </ContextMenuItem>
                         <ContextMenuItem
                           onClick={() => {
-                            navigator.clipboard.writeText(password.username);
-                            toast.success("Username copied successfully");
+                            try {
+                              navigator.clipboard.writeText(password.username);
+                              toast.success("Username copied successfully");
+                            } catch (error) {
+                              toast.error("Failed to copy username");
+                            }
                           }}
                         >
                           <User className="h-4 w-4 mr-2" />
@@ -220,9 +209,22 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                         </ContextMenuItem>
                         <ContextMenuItem
                           onClick={async () => {
-                            await deletePasswordItem(password.id);
-                            router.refresh();
-                            toast.success("Password deleted successfully");
+                            try {
+                              await deletePasswordItem(password.id);
+                              router.refresh();
+
+                              if (selectedEntry?.id === password.id) {
+                                setSelectedEntry(null);
+                              }
+
+                              toast.success("Password deleted successfully");
+
+                              return;
+                            } catch (error) {
+                              toast.error("Failed to delete password");
+
+                              return;
+                            }
                           }}
                         >
                           <Trash className="h-4 w-4 mr-2" />
@@ -240,16 +242,23 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             </ScrollArea>
           </div>
 
-          {/* Details Panel */}
           <div className="flex-1 bg-white p-4 lg:p-6">
             {selectedEntry && activeTab === "passwords" ? (
               <PasswordDetails
                 onEdit={handleEditEntry}
                 onDelete={async () => {
-                  await deletePasswordItem(selectedEntry.id);
-                  router.refresh();
-                  setSelectedEntry(null);
-                  toast.success("Password deleted successfully");
+                  try {
+                    await deletePasswordItem(selectedEntry.id);
+                    router.refresh();
+                    setSelectedEntry(null);
+                    toast.success("Password deleted successfully");
+
+                    return;
+                  } catch (error) {
+                    toast.error("Failed to delete password");
+
+                    return;
+                  }
                 }}
                 entry={selectedEntry}
               />
@@ -266,7 +275,6 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             setIsEditDialogOpen(false);
             router.refresh();
             setSelectedEntry(null);
-            setTimeout(() => document.body.focus(), 0);
           }}
           entry={selectedEntry}
         />

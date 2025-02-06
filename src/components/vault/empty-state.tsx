@@ -1,5 +1,5 @@
+import {CreditCard,Lock,Pin,StickyNote} from "lucide-react"
 import type React from "react"
-import { CreditCard, Lock, Pin, StickyNote } from "lucide-react"
 
 interface EmptyStateProps {
   activeTab: string

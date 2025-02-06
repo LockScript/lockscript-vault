@@ -17,8 +17,8 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import toast from "react-hot-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface PasswordEntry {
   id: string;
@@ -47,10 +47,14 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium">{entry.name}</h2>
+        <h2 className="text-2xl font-bold text-gray-800">{entry.name}</h2>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="bg-rose-50 hover:hover:bg-rose-100">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="bg-rose-50 hover:hover:bg-rose-100"
+            >
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -119,7 +123,11 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
             >
               <div className="flex items-center space-x-2">
                 <Lock className="h-4 w-4" />
-                <span>{isPasswordVisible ? entry.password : "••••••••"}</span>
+                <span>
+                  {isPasswordVisible
+                    ? entry.password
+                    : "•".repeat(entry.password.length)}
+                </span>
               </div>
             </TooltipTrigger>
           </Tooltip>
@@ -140,7 +148,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-500">History</h3>
+        <h3 className="text-lg font-medium text-gray-500">History</h3>{" "}
         <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50/50 p-4">
           {["Created", "Last modified", "Last access"].map((label) => (
             <div
@@ -149,11 +157,13 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
             >
               <span className="text-gray-500">{label}</span>
               <span className="font-medium text-gray-900">
-                {
-                  entry[
-                    label.toLowerCase().replace(" ", "") as keyof PasswordEntry
-                  ]
-                }
+                {label === "Last access"
+                  ? new Date(entry.lastAccess).toLocaleString()
+                  : label === "Last modified"
+                  ? new Date(entry.updatedAt).toLocaleString()
+                  : label === "Created"
+                  ? new Date(entry.created).toLocaleString()
+                  : ""}
               </span>
             </div>
           ))}
