@@ -1,32 +1,19 @@
 import {VaultPage} from "@/components/vault/vault-page";
-import prismadb from "@/lib/prismadb";
-import {auth} from "@clerk/nextjs/server";
-import {instantiateVault} from "../actions";
+import {auth, currentUser} from "@clerk/nextjs/server";
+import {getPasswords, instantiateVault} from "../actions";
 
-export const dynamic = "force-dynamic";
-
-const Page = async () => {
+export default async function Page(){
   const { userId, redirectToSignIn } = await auth();
 
   if (!userId) return redirectToSignIn();
 
-  const user = await prismadb.user.findUnique({
-    where: {
-      id: userId,
-    },
-    include: {
-      passwordItems: true,
-      cardItems: true,
-      pinItems: true,
-      noteItems: true,
-    },
-  });
+  const user = await getPasswords(userId)
 
   if (!user) {
-    instantiateVault();
+    const clerkUser = await currentUser()
+    if(!clerkUser) return redirectToSignIn()
+   await instantiateVault(clerkUser.id, clerkUser.username as string);
   }
 
   return <VaultPage user={user} />;
 };
-
-export default Page;

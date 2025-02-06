@@ -1,0 +1,17 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+services:
+  db:
+    container_name: lockscript-postgres
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres:/var/lib/postgres/data
+volumes:
+    postgres:
+      external: false
+

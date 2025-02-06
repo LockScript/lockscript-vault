@@ -26,10 +26,10 @@ const initialPasswordItemState = {
 
 export const CreatePasswordDialog = ({
   open,
-  onClose,
+    onClose,
 }: {
   open: boolean;
-  onClose: () => void;
+  onClose: ()=> void
 }) => {
   const [passwordItem, setPasswordItem] = useState(initialPasswordItemState);
   const [loading, setLoading] = useState(false);
@@ -156,6 +156,7 @@ export const CreatePasswordDialog = ({
               value={passwordItem.password}
               onChange={handleChange}
               type="password"
+              name="password"
               maxLength={128}
               name="password"
             />

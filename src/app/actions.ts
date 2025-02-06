@@ -94,19 +94,6 @@ export async function createPasswordItem(
     throw new Error("Not authenticated");
   }
 
-  const user = await prismadb.user.findUnique({
-    where: {
-      id: userId,
-    },
-    include: {
-      passwordItems: true,
-    },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
   const newPasswordItem = await prismadb.passwordItem.create({
     data: {
       username,
@@ -114,26 +101,22 @@ export async function createPasswordItem(
       password,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
-      userId: user.id,
+      user: {
+        connect: {
+          id: userId
+        }
+      }
     },
   });
 
   return newPasswordItem;
 }
 
-export async function instantiateVault() {
-  const { userId } = await auth()
-
-  if (!userId) {
-    throw new Error("Not authenticated");
-  }
-
-  const user = await currentUser()
-
+export async function instantiateVault(userId: string, username: string) {
   const vault = await prismadb.user.create({
     data: {
       id: userId,
-      username: user?.username!,
+      username: username,
     },
     include: {
       passwordItems: true,
@@ -144,4 +127,18 @@ export async function instantiateVault() {
   });
 
   return vault;
+}
+
+export async function getPasswords(userId: string) {
+  return prismadb.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      passwordItems: true,
+      cardItems: true,
+      pinItems: true,
+      noteItems: true,
+    },
+  });
 }
