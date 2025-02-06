@@ -1,15 +1,21 @@
-"use client"
+"use client";
 
-import {createPasswordItem} from "@/app/actions";
-import {Button} from "@/components/ui/button";
-import {Dialog,DialogContent,DialogFooter,DialogHeader,DialogTitle} from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {encrypt} from "@/utils/encryption";
-import {useUser} from "@clerk/nextjs";
-import {Loader2} from "lucide-react";
-import {useState} from "react";
+import { createPasswordItem } from "@/app/actions";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { encrypt } from "@/utils/encryption";
+import { useUser } from "@clerk/nextjs";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import {z} from "zod";
+import { z } from "zod";
 
 export const CreatePasswordDialog = ({
   open,
@@ -38,22 +44,27 @@ export const CreatePasswordDialog = ({
     website: z
       .string()
       .url("Invalid website URL")
-      .max(2048, "Website URL is too long"),
+      .max(50, "Website URL is too long"),
     password: z
       .string()
-      .min(6, "Password must be at least 6 characters long")
+      .min(2, "Password must be at least 2 characters long")
       .max(128, "Password must be at most 128 characters"),
   });
 
   const handleSave = async () => {
     setLoading(true);
+  
+    const formattedWebsite = website.startsWith("https://")
+      ? website
+      : `https://${website}`;
+  
     const validationResult = passwordSchema.safeParse({
       name,
       username,
-      website,
+      website: formattedWebsite,
       password,
     });
-
+  
     if (!validationResult.success) {
       const errorMessage =
         validationResult.error.errors[0]?.message || "Validation failed";
@@ -61,11 +72,11 @@ export const CreatePasswordDialog = ({
       setLoading(false);
       return;
     }
-
+  
     try {
       await createPasswordItem(
         encrypt(username, clerkuser),
-        encrypt(website, clerkuser),
+        encrypt(formattedWebsite, clerkuser),
         encrypt(password, clerkuser)
       );
       toast.success("Password created");
@@ -76,6 +87,7 @@ export const CreatePasswordDialog = ({
       setLoading(false);
     }
   };
+  
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -91,7 +103,13 @@ export const CreatePasswordDialog = ({
               onChange={(e) => setName(e.target.value)}
               maxLength={50}
             />
-            <div className="mt-1 text-sm text-gray-500">{name.length} / 50</div>
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {name.length}/50
+            </div>
           </div>
           <div className="relative">
             <Input
@@ -100,19 +118,31 @@ export const CreatePasswordDialog = ({
               onChange={(e) => setUsername(e.target.value)}
               maxLength={30}
             />
-            <div className="mt-1 text-sm text-gray-500">
-              {username.length} / 30
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {username.length}/30
             </div>
           </div>
-          <div className="relative">
+          <div className="flex relative rounded-lg">
+            <span className="-z-10 inline-flex items-center rounded-s-lg border border-input bg-background px-3 text-sm text-muted-foreground">
+              https://
+            </span>
             <Input
               placeholder="Website"
+              className="-ms-px h-12 rounded-tl-none rounded-bl-none"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
-              maxLength={1024}
+              maxLength={50}
             />
-            <div className="mt-1 text-sm text-gray-500">
-              {website.length} / 1024
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {website.length}/50
             </div>
           </div>
           <div className="relative">
@@ -123,8 +153,12 @@ export const CreatePasswordDialog = ({
               type="password"
               maxLength={128}
             />
-            <div className=" mt-1 text-sm text-gray-500">
-              {password.length} / 128
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {password.length}/128
             </div>
           </div>
         </div>

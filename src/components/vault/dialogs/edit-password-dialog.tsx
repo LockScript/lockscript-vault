@@ -60,10 +60,10 @@ export function EditPasswordDialog({
     website: z
       .string()
       .url("Invalid website URL")
-      .max(2048, "Website URL is too long"),
+      .max(50, "Website URL is too long"),
     password: z
       .string()
-      .min(6, "Password must be at least 6 characters long")
+      .min(2, "Password must be at least 2 characters long")
       .max(128, "Password must be at most 128 characters"),
   });
 
@@ -137,8 +137,12 @@ export function EditPasswordDialog({
               onChange={handleInputChange}
               maxLength={50}
             />
-            <div className="mt-1 text-sm text-gray-500">
-              {editedEntry.name.length} / 50
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {editedEntry.name.length}/50
             </div>
           </div>
           <div className="relative">
@@ -148,8 +152,12 @@ export function EditPasswordDialog({
               onChange={handleInputChange}
               maxLength={30}
             />
-            <div className="mt-1 text-sm text-gray-500">
-              {editedEntry.username.length} / 30
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {editedEntry.username.length}/30
             </div>
           </div>
           <div className="relative">
@@ -157,10 +165,14 @@ export function EditPasswordDialog({
               placeholder="Website"
               value={editedEntry.website}
               onChange={handleInputChange}
-              maxLength={1024}
+              maxLength={50}
             />
-            <div className="mt-1 text-sm text-gray-500">
-              {editedEntry.website.length} / 1024
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {editedEntry.website.length}/50
             </div>
           </div>
           <div className="relative">
@@ -171,8 +183,12 @@ export function EditPasswordDialog({
               type="password"
               maxLength={128}
             />
-            <div className=" mt-1 text-sm text-gray-500">
-              {editedEntry.password.length} / 128
+            <div
+              className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
+              aria-live="polite"
+              role="status"
+            >
+              {editedEntry.password.length}/128
             </div>
           </div>
         </div>
