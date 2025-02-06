@@ -1,5 +1,3 @@
-"use client"
-
 import {createPasswordItem} from "@/app/actions";
 import {Button} from "@/components/ui/button";
 import {Dialog,DialogContent,DialogFooter,DialogHeader,DialogTitle} from "@/components/ui/dialog";
@@ -7,21 +5,27 @@ import {Input} from "@/components/ui/input";
 import {encrypt} from "@/utils/encryption";
 import {useUser} from "@clerk/nextjs";
 import {Loader2} from "lucide-react";
-import {useState} from "react";
+import {ChangeEvent, useState} from "react";
 import toast from "react-hot-toast";
 import {z} from "zod";
 
+const initialPasswordItemState = {
+  name: "",
+  username: "",
+  website: "",
+  password: "",
+}
+
 export const CreatePasswordDialog = ({
   open,
-  onClose,
+    onClose,
 }: {
   open: boolean;
-  onClose: () => void;
+  onClose: ()=> void
 }) => {
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [website, setWebsite] = useState("");
-  const [password, setPassword] = useState("");
+
+  const [passwordItem, setPasswordItem] = useState(initialPasswordItemState)
+
   const [loading, setLoading] = useState(false);
 
   const { user: clerkuser } = useUser();
@@ -47,12 +51,7 @@ export const CreatePasswordDialog = ({
 
   const handleSave = async () => {
     setLoading(true);
-    const validationResult = passwordSchema.safeParse({
-      name,
-      username,
-      website,
-      password,
-    });
+    const validationResult = passwordSchema.safeParse(passwordItem);
 
     if (!validationResult.success) {
       const errorMessage =
@@ -64,11 +63,12 @@ export const CreatePasswordDialog = ({
 
     try {
       await createPasswordItem(
-        encrypt(username, clerkuser),
-        encrypt(website, clerkuser),
-        encrypt(password, clerkuser)
+        encrypt(passwordItem.username, clerkuser),
+        encrypt(passwordItem.website, clerkuser),
+        encrypt(passwordItem.password, clerkuser)
       );
       toast.success("Password created");
+      setPasswordItem(initialPasswordItemState)
       onClose();
     } catch (error) {
       toast.error("Failed to create password");
@@ -76,6 +76,10 @@ export const CreatePasswordDialog = ({
       setLoading(false);
     }
   };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPasswordItem(prevState => ({...prevState, [e.target.name]: e.target.value}))
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -87,50 +91,54 @@ export const CreatePasswordDialog = ({
           <div className="relative">
             <Input
               placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={passwordItem.name}
+              onChange={handleChange}
               maxLength={50}
+              name="name"
             />
-            <div className="mt-1 text-sm text-gray-500">{name.length} / 50</div>
+            <div className="mt-1 text-sm text-gray-500">{passwordItem.name.length} / 50</div>
           </div>
           <div className="relative">
             <Input
               placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={passwordItem.username}
+              onChange={handleChange}
               maxLength={30}
+              name="username"
             />
             <div className="mt-1 text-sm text-gray-500">
-              {username.length} / 30
+              {passwordItem.username.length} / 30
             </div>
           </div>
           <div className="relative">
             <Input
               placeholder="Website"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
+              value={passwordItem.website}
+              onChange={handleChange}
               maxLength={1024}
+              name="website"
             />
             <div className="mt-1 text-sm text-gray-500">
-              {website.length} / 1024
+              {passwordItem.website.length} / 1024
             </div>
           </div>
           <div className="relative">
             <Input
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={passwordItem.password}
+              onChange={handleChange}
               type="password"
+              name="password"
               maxLength={128}
             />
             <div className=" mt-1 text-sm text-gray-500">
-              {password.length} / 128
+              {passwordItem.password.length} / 128
             </div>
           </div>
         </div>
         <DialogFooter>
           <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={()=>onClose()}>
               Cancel
             </Button>
             <Button onClick={handleSave}>

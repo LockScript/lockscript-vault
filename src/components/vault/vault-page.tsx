@@ -1,6 +1,6 @@
 "use client";
 
-import {deletePasswordItem} from "@/app/actions";
+import {deletePasswordItem, getPasswords} from "@/app/actions";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {ScrollArea} from "@/components/ui/scroll-area";
@@ -63,13 +63,14 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredEntries, setFilteredEntries] = useState<PasswordEntry[]>([]);
   const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
+  const [passwordItems, setPasswordItems] = useState(user?.passwordItems)
 
   useEffect(() => {
     if (!clerkUser) return;
 
-    if (!user?.passwordItems) return;
+    if (!user?.passwordItems || !passwordItems) return;
 
-    const decryptedPasswords = user.passwordItems
+    const decryptedPasswords = passwordItems
       .map((item) => ({
         id: item.id,
         name: decrypt(item.username, clerkUser),
@@ -85,7 +86,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
       );
 
     setPasswords(decryptedPasswords);
-  }, [user?.passwordItems, clerkUser]);
+  }, [user?.passwordItems, clerkUser, passwordItems]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -211,8 +212,8 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                           onClick={async () => {
                             try {
                               await deletePasswordItem(password.id);
-                              router.refresh();
-
+                              const updatedItems = await getPasswords(user?.id as string)
+                               setPasswordItems(updatedItems?.passwordItems);
                               if (selectedEntry?.id === password.id) {
                                 setSelectedEntry(null);
                               }
@@ -281,10 +282,11 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
       )}
       <CreatePasswordDialog
         open={isCreateDialogOpen}
-        onClose={() => {
+        onClose={async () => {
           setIsCreateDialogOpen(false);
-          router.refresh();
           setSelectedEntry(null);
+          const userWithPasswords = await getPasswords(user?.id as string)
+          setPasswordItems(userWithPasswords?.passwordItems)
         }}
       />
     </div>
