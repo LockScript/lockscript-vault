@@ -1,60 +1,99 @@
-# [Lockscript Vault](https://vault.lockscript.dev)
+# [LockScript Vault](https://vault.lockscript.dev)  
+An open-source secure credential vault for passwords, cards, notes, and PINs.
 
-LockScript Vault is an open-source secure vault for passwords, cards, notes, and pins.
+<p align="center">
+  <img src="./public/images/lockscript.png" alt="LockScript" width="300" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+</p>
 
-## Tech Stack
-- NextJS
-- TailwindCSS
-- Typescript
-- ShadCN
-- Prisma
-- Zod
+---
 
-## Getting Started
+## 🚀 Tech Stack
 
-Clone the repository
+- **Framework**: Next.js  
+- **Authentication**: Clerk  
+- **Styling**: TailwindCSS  
+- **Language**: TypeScript  
+- **UI Components**: ShadCN  
+- **ORM**: Prisma  
+- **Validation**: Zod  
+
+---
+
+## 🛠 Getting Started
+
+### Clone the Repository
+
 ```bash
 git clone git@github.com:Lockscript/Lockscript-Vault
-```
-```bash
 cd Lockscript-Vault
 ```
 
-Repo is using yarn as a package manager. 
+### Install Dependencies
 
-[How To Install Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+This project uses yarn as the package manager.
 
-Install dependencies
+[How to install Yarn](https://classic.yarnpkg.com/lang/en/docs/install/#windows-stable)
+
+### Set Up Local Database (if required)
+
+1. Start the Docker container (requires [Docker](https://docs.docker.com/engine/install/)):
+    ```bash
+    docker compose -f ./local-database.yml up -d
+    ```
+
+2. Generate the database client:
+    ```bash
+    yarn generate
+    ```
+
+3. Push the Prisma schema to the database:
+    ```bash
+    yarn push
+    ```
+
+### Create a Clerk Project
+
+1. Go to the [Clerk Dashboard](https://dashboard.clerk.com).
+2. Copy the `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
+3. Add them to your `.env` file.
+
+### Start the Development Server
+
 ```bash
-yarn install
+yarn dev
 ```
 
-### Setup local database (if required)
+---
+## 🤝 How to Contribute
 
-Start Docker container (requires [Docker](https://docs.docker.com/engine/install/))
+We’re excited to have you contribute to LockScript Vault! Follow these steps to ensure your contributions are impactful and aligned with our project goals:
 
-```bash
-docker compose -f ./local-database.yml up -d
-```
-Generate database client
+### 📝 Documentation
+- Provide clear and concise documentation for any new features, updates, or bug fixes.
+- Include code comments where necessary to explain non-obvious logic.
 
-```bash
-yarn run generate
-```
-```bash
-yarn run push
-```
+### 📦 Dependencies
+- If you introduce new dependencies, ensure they are necessary and well-documented.
+- Add a clear explanation of why the dependency was added in your pull request description.
 
-### Start the dev server
-```bash
-yarn run dev
-```
+### 🧪 Testing
+- Thoroughly test your changes before submission.
+- Write unit and integration tests for new features wherever applicable.
+- Ensure that all existing tests pass by running:
+    ```bash
+    yarn build
+    ```
+---
 
+## 📜 License
 
-## How to contribute
+LockScript Vault is licensed under the [MIT License](./LICENSE), ensuring simplicity, flexibility, and freedom for contributors and users.
 
-We accept contributions from the community, but you must follow some rules:
+### What Does This Mean?
+- **Free to Use:** You are free to use, copy, modify, merge, publish, and distribute the code for personal, educational, or commercial purposes.  
+- **Attribution Required:** Any use of the code must include the original copyright notice.  
+- **No Warranty:** The software is provided "as is," without any warranty, ensuring no liability for the maintainers.
 
-1. Document your changes.
-2. Specifically state ANY new dependencies you have added.
-3. Test your changes.
+The MIT License promotes open collaboration while giving you the freedom to innovate and build upon the project without restrictions.
+
+For more details, view the full license text in the [LICENSE](./LICENSE) file.

@@ -158,7 +158,6 @@ export const CreatePasswordDialog = ({
               type="password"
               name="password"
               maxLength={128}
-              name="password"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
