@@ -126,9 +126,12 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
       );
 
       setPasswords(
-        decryptedPasswords.filter(
-          (item): item is PasswordEntry => item !== null
-        )
+        decryptedPasswords
+          .filter((item): item is PasswordEntry => item !== null)
+          .sort(
+            (a, b) =>
+              new Date(b.created).getTime() - new Date(a.created).getTime()
+          )
       );
     };
 
