@@ -1,5 +1,5 @@
-import {updatePasswordItem} from "@/app/actions";
-import {Button} from "@/components/ui/button";
+import { updatePasswordItem } from "@/app/actions";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,15 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {encrypt} from "@/utils/encryption";
-import {useUser} from "@clerk/nextjs";
-import {Globe,Loader2} from "lucide-react";
-import {useRouter} from "next/navigation";
+import { Input } from "@/components/ui/input";
+import prismadb from "@/lib/prismadb";
+import { encrypt } from "@/utils/encryption";
+import { useUser } from "@clerk/nextjs";
+import { Globe, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import * as React from "react";
-import {useEffect,useState} from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import {z} from "zod";
+import { z } from "zod";
 
 interface PasswordEntry {
   id: string;
@@ -80,14 +81,14 @@ export function EditPasswordDialog({
 
   const handleSave = async () => {
     setLoading(true);
-  
+
     const validationResult = passwordSchema.safeParse({
       name: editedEntry.name,
       username: editedEntry.username,
       website: editedEntry.website,
       password: editedEntry.password,
     });
-  
+
     if (!validationResult.success) {
       const errorMessage =
         validationResult.error.errors[0]?.message || "Validation failed";
@@ -95,30 +96,37 @@ export function EditPasswordDialog({
       setLoading(false);
       return;
     }
-  
+
     if (!user) {
       toast.error("User not found");
       setLoading(false);
       return;
     }
-  
+
+    if (!entry) {
+      toast.error("Entry not found");
+      setLoading(false);
+      return;
+    }
+
     try {
       const encryptedUsername = await encrypt(editedEntry.username, user.id);
       const encryptedWebsite = await encrypt(editedEntry.website, user.id);
       const encryptedPassword = await encrypt(editedEntry.password, user.id);
-  
-      updatePasswordItem(
-        entry!.id,
+
+      await updatePasswordItem(
+        entry.id,
         encryptedUsername.encryptedData,
         encryptedWebsite.encryptedData,
         encryptedPassword.encryptedData,
-        encryptedUsername.iv,
+        encryptedUsername.iv, 
         encryptedWebsite.iv,
-        encryptedPassword.iv,
+        encryptedPassword.iv
       );
-  
+
       router.refresh();
       toast.success("Password updated");
+
       onClose();
     } catch (error) {
       toast.error("Failed to update password");
@@ -126,7 +134,6 @@ export function EditPasswordDialog({
       setLoading(false);
     }
   };
-  
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

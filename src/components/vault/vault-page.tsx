@@ -33,7 +33,9 @@ interface PasswordEntry {
   username: string;
   website: string;
   password: string;
-  iv: string;
+  usernameIV: string;
+  websiteIV: string;
+  passwordIV: string;
   updatedAt: string;
   lastAccess: string;
   created: string;
@@ -86,9 +88,9 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
 
   useEffect(() => {
     if (!clerkUser) return;
-  
+
     if (!user?.passwordItems || !passwordItems) return;
-  
+
     const decryptPasswords = async () => {
       const decryptedPasswords = await Promise.all(
         passwordItems.map(async (item) => {
@@ -96,9 +98,21 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             const decryptedItem = {
               id: item.id,
               name: await decrypt(item.username, item.usernameIV, clerkUser.id),
-              username: await decrypt(item.username, item.usernameIV, clerkUser.id),
-              website: await decrypt(item.website, item.websiteIV, clerkUser.id),
-              password: await decrypt(item.password, item.passwordIV, clerkUser.id),
+              username: await decrypt(
+                item.username,
+                item.usernameIV,
+                clerkUser.id
+              ),
+              website: await decrypt(
+                item.website,
+                item.websiteIV,
+                clerkUser.id
+              ),
+              password: await decrypt(
+                item.password,
+                item.passwordIV,
+                clerkUser.id
+              ),
               updatedAt: item.updatedAt.toISOString(),
               lastAccess: item.updatedAt.toISOString(),
               created: item.createdAt.toISOString(),
@@ -110,15 +124,16 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
           }
         })
       );
-  
+
       setPasswords(
-        decryptedPasswords.filter((item): item is PasswordEntry => item !== null)
+        decryptedPasswords.filter(
+          (item): item is PasswordEntry => item !== null
+        )
       );
     };
-  
+
     decryptPasswords();
   }, [user?.passwordItems, clerkUser, passwordItems]);
-  
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);

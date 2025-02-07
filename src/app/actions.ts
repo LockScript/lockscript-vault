@@ -37,7 +37,7 @@ export async function updatePasswordItem(
     throw new Error("Password item not found");
   }
 
-  await prismadb.passwordItem.update({
+  const item = await prismadb.passwordItem.update({
     where: {
       id: passwordItem.id,
     },
@@ -51,7 +51,7 @@ export async function updatePasswordItem(
     },
   });
 
-  return { success: true };
+  return item;
 }
 
 export async function deletePasswordItem(id: string) {
