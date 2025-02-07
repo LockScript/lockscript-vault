@@ -78,15 +78,16 @@ export function EditPasswordDialog({
     setEditedEntry((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setLoading(true);
+  
     const validationResult = passwordSchema.safeParse({
       name: editedEntry.name,
       username: editedEntry.username,
       website: editedEntry.website,
       password: editedEntry.password,
     });
-
+  
     if (!validationResult.success) {
       const errorMessage =
         validationResult.error.errors[0]?.message || "Validation failed";
@@ -94,14 +95,28 @@ export function EditPasswordDialog({
       setLoading(false);
       return;
     }
-
+  
+    if (!user) {
+      toast.error("User not found");
+      setLoading(false);
+      return;
+    }
+  
     try {
+      const encryptedUsername = await encrypt(editedEntry.username, user.id);
+      const encryptedWebsite = await encrypt(editedEntry.website, user.id);
+      const encryptedPassword = await encrypt(editedEntry.password, user.id);
+  
       updatePasswordItem(
         entry!.id,
-        encrypt(editedEntry.username, user),
-        encrypt(editedEntry.website, user),
-        encrypt(editedEntry.password, user)
+        encryptedUsername.encryptedData,
+        encryptedWebsite.encryptedData,
+        encryptedPassword.encryptedData,
+        encryptedUsername.iv,
+        encryptedWebsite.iv,
+        encryptedPassword.iv,
       );
+  
       router.refresh();
       toast.success("Password updated");
       onClose();
@@ -111,6 +126,7 @@ export function EditPasswordDialog({
       setLoading(false);
     }
   };
+  
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -136,6 +152,7 @@ export function EditPasswordDialog({
               value={editedEntry.name}
               onChange={handleInputChange}
               maxLength={50}
+              name="name"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
@@ -151,6 +168,7 @@ export function EditPasswordDialog({
               value={editedEntry.username}
               onChange={handleInputChange}
               maxLength={30}
+              name="username"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
@@ -166,6 +184,7 @@ export function EditPasswordDialog({
               value={editedEntry.website}
               onChange={handleInputChange}
               maxLength={50}
+              name="website"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
@@ -182,6 +201,7 @@ export function EditPasswordDialog({
               onChange={handleInputChange}
               type="password"
               maxLength={128}
+              name="password"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"

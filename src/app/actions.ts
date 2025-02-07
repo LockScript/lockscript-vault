@@ -1,13 +1,16 @@
 "use server";
 
 import prismadb from "@/lib/prismadb";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import {auth} from "@clerk/nextjs/server";
 
 export async function updatePasswordItem(
   id: string,
   newUsername: string,
   newWebsite: string,
-  newPassword: string
+  newPassword: string,
+  usernameIV: string,
+  websiteIV: string,
+  passwordIV: string
 ) {
   const { userId } = await auth()
 
@@ -42,6 +45,9 @@ export async function updatePasswordItem(
       username: newUsername,
       website: newWebsite,
       password: newPassword,
+      usernameIV,
+      websiteIV,
+      passwordIV,
     },
   });
 
@@ -86,7 +92,10 @@ export async function deletePasswordItem(id: string) {
 export async function createPasswordItem(
   username: string,
   website: string,
-  password: string
+  password: string,
+  usernameIV: string,
+  websiteIV: string,
+  passwordIV: string
 ) {
   const { userId } = await auth()
 
@@ -99,6 +108,9 @@ export async function createPasswordItem(
       username,
       website,
       password,
+      usernameIV,
+      websiteIV,
+      passwordIV,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       user: {

@@ -38,6 +38,9 @@ model PasswordItem {
   website   String
   username  String
   password  String
+  usernameIV        String
+  websiteIV         String
+  passwordIV        String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   userId    String

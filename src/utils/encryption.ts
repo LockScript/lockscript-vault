@@ -1,20 +1,80 @@
 import CryptoJS from "crypto-js";
 
 
-// this can be reverse engineered - please use a randomly generated string that is saved securely somewhere else.
-const generateEncryptionPassword = (clerkUser: any) => {
-  if (!clerkUser) return "";
-  return `${clerkUser.id}-${clerkUser.createdAt}-${clerkUser.createdAt?.getTime()}-${clerkUser.id.charCodeAt(clerkUser.id.length - 1)}-${clerkUser.createdAt?.getDate()}-${clerkUser.id.charCodeAt(0)}-${clerkUser.createdAt?.getUTCFullYear()}-${clerkUser.id.charCodeAt(1)}-${clerkUser.createdAt?.getUTCHours()}-${clerkUser.id.length}-${clerkUser.createdAt?.getUTCMinutes()}`;
+export const generateAndStoreKey = async (userId: string) => {
+  const key = await crypto.subtle.generateKey(
+    {
+      name: "AES-GCM",
+      length: 256,
+    },
+    true,
+    ["encrypt", "decrypt"]
+  );
+
+  const exportedKey = await crypto.subtle.exportKey("raw", key);
+  const keyString = btoa(String.fromCharCode(...new Uint8Array(exportedKey)));
+
+  localStorage.setItem(`encryptionKey-${userId}`, keyString);
+
+  return key;
 };
 
-// See above comment - the key should be stored securely and used on subsequent encryption calls
-export const encrypt = (data: string, clerkUser: any) => {
-  const encryptionPassword = generateEncryptionPassword(clerkUser);
-  return CryptoJS.AES.encrypt(data, encryptionPassword).toString();
+export const retrieveKey = async (userId: string) => {
+  const keyString = localStorage.getItem(`encryptionKey-${userId}`);
+  if (!keyString) throw new Error("Encryption key not found.");
+
+  const binaryKey = Uint8Array.from(atob(keyString), (char) => char.charCodeAt(0));
+  return await crypto.subtle.importKey(
+    "raw",
+    binaryKey,
+    { name: "AES-GCM" },
+    true,
+    ["encrypt", "decrypt"]
+  );
 };
 
-export const decrypt = (encryptedData: string, clerkUser: any) => {
-  const encryptionPassword = generateEncryptionPassword(clerkUser);
-  const bytes = CryptoJS.AES.decrypt(encryptedData, encryptionPassword);
-  return bytes.toString(CryptoJS.enc.Utf8);
+
+export const encrypt = async (data: string, userId: string) => {
+  const key = await retrieveKey(userId);
+  const encoder = new TextEncoder();
+  const encodedData = encoder.encode(data);
+
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const encryptedBuffer = await crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv,
+    },
+    key,
+    encodedData
+  );
+
+  return {
+    encryptedData: btoa(String.fromCharCode(...new Uint8Array(encryptedBuffer))),
+    iv: btoa(String.fromCharCode(...iv)),
+  };
+};
+
+export const decrypt = async (
+  encryptedData: string,
+  iv: string,
+  userId: string
+): Promise<string> => {
+  const key = await retrieveKey(userId);
+  const decoder = new TextDecoder();
+
+  const encryptedBuffer = Uint8Array.from(atob(encryptedData), (char) => char.charCodeAt(0));
+  const ivBuffer = Uint8Array.from(atob(iv), (char) => char.charCodeAt(0));
+
+  const decryptedBuffer = await crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv: ivBuffer,
+    },
+    key,
+    encryptedBuffer
+  );
+
+  return decoder.decode(decryptedBuffer);
 };

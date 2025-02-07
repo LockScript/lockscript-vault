@@ -26,10 +26,10 @@ const initialPasswordItemState = {
 
 export const CreatePasswordDialog = ({
   open,
-    onClose,
+  onClose,
 }: {
   open: boolean;
-  onClose: ()=> void
+  onClose: () => void;
 }) => {
   const [passwordItem, setPasswordItem] = useState(initialPasswordItemState);
   const [loading, setLoading] = useState(false);
@@ -68,12 +68,35 @@ export const CreatePasswordDialog = ({
       return;
     }
 
+    if (!clerkuser) {
+      toast.error("User not found");
+      setLoading(false);
+      return;
+    }
+
     try {
-      await createPasswordItem(
-        encrypt(passwordItem.username, clerkuser),
-        encrypt(passwordItem.website, clerkuser),
-        encrypt(passwordItem.password, clerkuser)
+      const encryptedUsername = await encrypt(
+        passwordItem.username,
+        clerkuser.id
       );
+      const encryptedWebsite = await encrypt(
+        passwordItem.website,
+        clerkuser.id
+      );
+      const encryptedPassword = await encrypt(
+        passwordItem.password,
+        clerkuser.id
+      );
+
+      await createPasswordItem(
+        encryptedUsername.encryptedData,
+        encryptedWebsite.encryptedData,
+        encryptedPassword.encryptedData,
+        encryptedUsername.iv,
+        encryptedWebsite.iv,
+        encryptedPassword.iv
+      );
+
       toast.success("Password created");
       setPasswordItem(initialPasswordItemState);
       onClose();

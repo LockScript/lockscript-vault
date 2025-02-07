@@ -1,20 +1,20 @@
 "use client";
 
-import {deletePasswordItem, getPasswords} from "@/app/actions";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {ScrollArea} from "@/components/ui/scroll-area";
-import {Sheet,SheetContent} from "@/components/ui/sheet";
-import {CreatePasswordDialog} from "@/components/vault/dialogs/create-password-dialog";
-import {EditPasswordDialog} from "@/components/vault/dialogs/edit-password-dialog";
-import {cn} from "@/lib/utils";
-import {decrypt} from "@/utils/encryption";
-import {useUser} from "@clerk/nextjs";
-import {Prisma} from "@prisma/client";
-import {Plus,SquareArrowOutUpRight,Trash,User} from "lucide-react";
+import { deletePasswordItem, getPasswords } from "@/app/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { CreatePasswordDialog } from "@/components/vault/dialogs/create-password-dialog";
+import { EditPasswordDialog } from "@/components/vault/dialogs/edit-password-dialog";
+import { cn } from "@/lib/utils";
+import { decrypt, generateAndStoreKey, retrieveKey } from "@/utils/encryption";
+import { useUser } from "@clerk/nextjs";
+import { Prisma } from "@prisma/client";
+import { Plus, SquareArrowOutUpRight, Trash, User } from "lucide-react";
 import Image from "next/image";
-import {useRouter} from "next/navigation";
-import {useEffect,useState} from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   ContextMenu,
@@ -23,9 +23,9 @@ import {
   ContextMenuLabel,
   ContextMenuTrigger,
 } from "../ui/context-menu";
-import {EmptyState} from "./empty-state";
-import {PasswordDetails} from "./password-details";
-import {Sidebar} from "./sidebar";
+import { EmptyState } from "./empty-state";
+import { PasswordDetails } from "./password-details";
+import { Sidebar } from "./sidebar";
 
 interface PasswordEntry {
   id: string;
@@ -33,6 +33,7 @@ interface PasswordEntry {
   username: string;
   website: string;
   password: string;
+  iv: string;
   updatedAt: string;
   lastAccess: string;
   created: string;
@@ -63,30 +64,61 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredEntries, setFilteredEntries] = useState<PasswordEntry[]>([]);
   const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
-  const [passwordItems, setPasswordItems] = useState(user?.passwordItems)
+  const [passwordItems, setPasswordItems] = useState(user?.passwordItems);
+
+  useEffect(() => {
+    const ensureEncryptionKey = async () => {
+      if (!clerkUser) return;
+
+      const userId = clerkUser.id;
+
+      try {
+        await retrieveKey(userId);
+        toast.success("Encryption key found");
+      } catch {
+        toast.success("Generating encryption key...");
+        await generateAndStoreKey(userId);
+      }
+    };
+
+    ensureEncryptionKey();
+  }, [clerkUser]);
 
   useEffect(() => {
     if (!clerkUser) return;
-
+  
     if (!user?.passwordItems || !passwordItems) return;
-
-    const decryptedPasswords = passwordItems
-      .map((item) => ({
-        id: item.id,
-        name: decrypt(item.username, clerkUser),
-        username: decrypt(item.username, clerkUser),
-        website: decrypt(item.website, clerkUser),
-        password: decrypt(item.password, clerkUser),
-        updatedAt: item.updatedAt.toISOString(),
-        lastAccess: item.updatedAt.toISOString(),
-        created: item.createdAt.toISOString(),
-      }))
-      .sort(
-        (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()
+  
+    const decryptPasswords = async () => {
+      const decryptedPasswords = await Promise.all(
+        passwordItems.map(async (item) => {
+          try {
+            const decryptedItem = {
+              id: item.id,
+              name: await decrypt(item.username, item.usernameIV, clerkUser.id),
+              username: await decrypt(item.username, item.usernameIV, clerkUser.id),
+              website: await decrypt(item.website, item.websiteIV, clerkUser.id),
+              password: await decrypt(item.password, item.passwordIV, clerkUser.id),
+              updatedAt: item.updatedAt.toISOString(),
+              lastAccess: item.updatedAt.toISOString(),
+              created: item.createdAt.toISOString(),
+            };
+            return decryptedItem;
+          } catch (error) {
+            console.error(`Error decrypting item ID: ${item.id}`, error);
+            return null;
+          }
+        })
       );
-
-    setPasswords(decryptedPasswords);
+  
+      setPasswords(
+        decryptedPasswords.filter((item): item is PasswordEntry => item !== null)
+      );
+    };
+  
+    decryptPasswords();
   }, [user?.passwordItems, clerkUser, passwordItems]);
+  
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -212,8 +244,10 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                           onClick={async () => {
                             try {
                               await deletePasswordItem(password.id);
-                              const updatedItems = await getPasswords(user?.id as string)
-                               setPasswordItems(updatedItems?.passwordItems);
+                              const updatedItems = await getPasswords(
+                                user?.id as string
+                              );
+                              setPasswordItems(updatedItems?.passwordItems);
                               if (selectedEntry?.id === password.id) {
                                 setSelectedEntry(null);
                               }
@@ -285,8 +319,8 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         onClose={async () => {
           setIsCreateDialogOpen(false);
           setSelectedEntry(null);
-          const userWithPasswords = await getPasswords(user?.id as string)
-          setPasswordItems(userWithPasswords?.passwordItems)
+          const userWithPasswords = await getPasswords(user?.id as string);
+          setPasswordItems(userWithPasswords?.passwordItems);
         }}
       />
     </div>
