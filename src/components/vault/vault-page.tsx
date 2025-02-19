@@ -306,6 +306,9 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                     setSelectedEntry(null);
                     toast.success("Password deleted successfully");
 
+                    const updatedItems = await getPasswords(user?.id as string);
+                    setPasswordItems(updatedItems?.passwordItems);
+
                     return;
                   } catch (error) {
                     toast.error("Failed to delete password");
@@ -324,10 +327,13 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
       {isEditDialogOpen && (
         <EditPasswordDialog
           isOpen={isEditDialogOpen}
-          onClose={() => {
+          onClose={async () => {
             setIsEditDialogOpen(false);
             router.refresh();
             setSelectedEntry(null);
+
+            const updatedItems = await getPasswords(user?.id as string);
+            setPasswordItems(updatedItems?.passwordItems);
           }}
           entry={selectedEntry}
         />
@@ -336,9 +342,9 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         open={isCreateDialogOpen}
         onClose={async () => {
           setIsCreateDialogOpen(false);
-          setSelectedEntry(null);
-          const userWithPasswords = await getPasswords(user?.id as string);
-          setPasswordItems(userWithPasswords?.passwordItems);
+
+          const updatedItems = await getPasswords(user?.id as string);
+          setPasswordItems(updatedItems?.passwordItems);
         }}
       />
     </div>
