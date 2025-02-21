@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+import {TooltipProvider} from "@/components/ui/tooltip";
+import {ClerkProvider} from "@clerk/nextjs";
+import type {Metadata} from "next";
+import {Toaster} from "react-hot-toast";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "react-hot-toast";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "LockScript - Vault",

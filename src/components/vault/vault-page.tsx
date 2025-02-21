@@ -7,10 +7,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { CreatePasswordDialog } from "@/components/vault/dialogs/create-password-dialog";
 import { EditPasswordDialog } from "@/components/vault/dialogs/edit-password-dialog";
+import { Settings } from "@/components/vault/settings";
 import { cn } from "@/lib/utils";
 import { decrypt, generateAndStoreKey, retrieveKey } from "@/utils/encryption";
 import { useUser } from "@clerk/nextjs";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { Plus, SquareArrowOutUpRight, Trash, User } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -149,8 +150,8 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   };
 
   return (
-    <div className="flex h-screen flex-col lg:flex-row bg-white">
-      <div className="hidden lg:block lg:w-64 border-r border-gray-100">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-900">
+      <div className="hidden lg:block lg:w-64 border-r border-gray-100 dark:border-gray-800">
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -168,160 +169,176 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         </SheetContent>
       </Sheet>
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-col flex-1 overflow-hidden">
         <div className="flex items-center justify-between p-4 lg:px-6">
-          <h1 className="text-2xl font-bold">My Vault</h1>
+          <h1 className="text-2xl font-bold dark:text-white">My Vault</h1>
           <div className="flex items-center space-x-4">
-            <Input
-              type="search"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-48 focus:ring-0 ring-0 focus-visible:ring-0"
-            />
-            <Button
-              size="icon"
-              className="bg-rose-50 hover:hover:bg-rose-100"
-              onClick={() => setIsCreateDialogOpen(true)}
-            >
-              <Plus className="h-4 w-4 text-gray-500" />
-            </Button>
+            {activeTab !== "settings" && (
+              <>
+                <Input
+                  type="search"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="w-48 focus:ring-0 ring-0 focus-visible:ring-0 dark:bg-gray-800 dark:text-white"
+                />
+                <Button
+                  size="icon"
+                  className="bg-rose-50 hover:hover:bg-rose-100 dark:bg-rose-900 dark:hover:bg-rose-800"
+                  onClick={() => setIsCreateDialogOpen(true)}
+                >
+                  <Plus className="h-4 w-4 text-gray-500 dark:text-gray-300" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col lg:flex-row">
-          <div className="flex-1 overflow-y-auto">
-            <ScrollArea className="flex-1 border-r">
-              <div className="space-y-2 p-4">
-                {activeTab === "passwords" &&
-                  passwords.map((password) => (
-                    <ContextMenu key={password.id}>
-                      <ContextMenuTrigger>
-                        <Button
-                          variant="ghost"
-                          className={cn(
-                            "w-full justify-start rounded-xl p-6 text-left transition-all hover:bg-rose-50/50",
-                            selectedEntry?.id === password.id && "bg-rose-50"
-                          )}
-                          onClick={() => setSelectedEntry(password)}
-                        >
-                          <div className="flex w-full items-start gap-3">
-                            <div className="rounded-xl bg-rose-100 p-2 mt-1">
-                              <Image
-                                height={40}
-                                width={40}
-                                alt="Site"
-                                src={`https://s2.googleusercontent.com/s2/favicons?domain=${password.website}&sz=128`}
-                                className="h-4 w-4 rounded-full bg-primary/10 object-cover flex items-center justify-center"
-                              />
-                            </div>
-                            <div className="flex-1 space-y-1">
+        <div className="flex flex-1 overflow-hidden">
+          {activeTab === "settings" ? (
+            <div className="flex-1 overflow-y-auto">
+              <Settings />
+            </div>
+          ) : (
+            <>
+              <div className="w-1/3 overflow-y-auto border-r dark:border-gray-800">
+                <ScrollArea className="h-full">
+                  <div className="space-y-2 p-4">
+                    {activeTab === "passwords" &&
+                      passwords.map((password) => (
+                        <ContextMenu key={password.id}>
+                          <ContextMenuTrigger>
+                            <Button
+                              variant="ghost"
+                              className={cn(
+                                "w-full justify-start rounded-xl p-4 text-left transition-all hover:bg-rose-50/50 dark:hover:bg-rose-900/50",
+                                selectedEntry?.id === password.id &&
+                                  "bg-rose-50 dark:bg-rose-900"
+                              )}
+                              onClick={() => setSelectedEntry(password)}
+                            >
+                              <div className="flex w-full items-center gap-3">
+                                <div className="flex-shrink-0 rounded-xl bg-rose-100 dark:bg-rose-800 p-2">
+                                  <Image
+                                    height={40}
+                                    width={40}
+                                    alt="Site"
+                                    src={`https://s2.googleusercontent.com/s2/favicons?domain=${password.website}&sz=128`}
+                                    className="h-4 w-4 rounded-full bg-primary/10 object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-900 dark:text-white truncate">
+                                    {password.name}
+                                  </div>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                    {password.username}
+                                  </div>
+                                </div>
+                              </div>
+                            </Button>
+                          </ContextMenuTrigger>
+                          <ContextMenuContent className="rounded-xl">
+                            <ContextMenuLabel>
                               <div className="font-medium text-gray-900">
                                 {password.name}
                               </div>
-                              <div className="text-xs text-gray-500">
-                                {password.username}
-                              </div>
-                            </div>
-                          </div>
-                        </Button>
-                      </ContextMenuTrigger>
-                      <ContextMenuContent className="rounded-xl">
-                        <ContextMenuLabel>
-                          <div className="font-medium text-gray-900">
-                            {password.name}
-                          </div>
-                        </ContextMenuLabel>
-                        <ContextMenuItem
-                          onClick={() => {
-                            try {
-                              window.open(password.website, "_blank");
-                              toast.success("Website opened successfully");
-                            } catch (error) {
-                              toast.error("Failed to open website");
-                            }
-                          }}
-                        >
-                          <SquareArrowOutUpRight className="h-4 w-4 mr-2" />
-                          Open Website
-                        </ContextMenuItem>
-                        <ContextMenuItem
-                          onClick={() => {
-                            try {
-                              navigator.clipboard.writeText(password.username);
-                              toast.success("Username copied successfully");
-                            } catch (error) {
-                              toast.error("Failed to copy username");
-                            }
-                          }}
-                        >
-                          <User className="h-4 w-4 mr-2" />
-                          Copy Username
-                        </ContextMenuItem>
-                        <ContextMenuItem
-                          onClick={async () => {
-                            try {
-                              await deletePasswordItem(password.id);
-                              const updatedItems = await getPasswords(
-                                user?.id as string
-                              );
-                              setPasswordItems(updatedItems?.passwordItems);
-                              if (selectedEntry?.id === password.id) {
-                                setSelectedEntry(null);
-                              }
+                            </ContextMenuLabel>
+                            <ContextMenuItem
+                              onClick={() => {
+                                try {
+                                  window.open(password.website, "_blank");
+                                  toast.success("Website opened successfully");
+                                } catch (error) {
+                                  toast.error("Failed to open website");
+                                }
+                              }}
+                            >
+                              <SquareArrowOutUpRight className="h-4 w-4 mr-2" />
+                              Open Website
+                            </ContextMenuItem>
+                            <ContextMenuItem
+                              onClick={() => {
+                                try {
+                                  navigator.clipboard.writeText(
+                                    password.username
+                                  );
+                                  toast.success("Username copied successfully");
+                                } catch (error) {
+                                  toast.error("Failed to copy username");
+                                }
+                              }}
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              Copy Username
+                            </ContextMenuItem>
+                            <ContextMenuItem
+                              onClick={async () => {
+                                try {
+                                  await deletePasswordItem(password.id);
+                                  const updatedItems = await getPasswords(
+                                    user?.id as string
+                                  );
+                                  setPasswordItems(updatedItems?.passwordItems);
+                                  if (selectedEntry?.id === password.id) {
+                                    setSelectedEntry(null);
+                                  }
 
-                              toast.success("Password deleted successfully");
+                                  toast.success(
+                                    "Password deleted successfully"
+                                  );
 
-                              return;
-                            } catch (error) {
-                              toast.error("Failed to delete password");
+                                  return;
+                                } catch (error) {
+                                  toast.error("Failed to delete password");
 
-                              return;
-                            }
-                          }}
-                        >
-                          <Trash className="h-4 w-4 mr-2" />
-                          Delete
-                        </ContextMenuItem>
-                      </ContextMenuContent>
-                    </ContextMenu>
-                  ))}
-                {activeTab !== "passwords" && (
-                  <div className="flex h-full items-center justify-center text-gray-500">
-                    No {activeTab} available
+                                  return;
+                                }
+                              }}
+                            >
+                              <Trash className="h-4 w-4 mr-2" />
+                              Delete
+                            </ContextMenuItem>
+                          </ContextMenuContent>
+                        </ContextMenu>
+                      ))}
+
+                    {activeTab === "cards" && (
+                      <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
+                        No {activeTab} available
+                      </div>
+                    )}
                   </div>
+                </ScrollArea>
+              </div>
+
+              <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-4 lg:p-6">
+                {selectedEntry && activeTab === "passwords" ? (
+                  <PasswordDetails
+                    onEdit={handleEditEntry}
+                    onDelete={async () => {
+                      try {
+                        await deletePasswordItem(selectedEntry.id);
+                        router.refresh();
+                        setSelectedEntry(null);
+                        toast.success("Password deleted successfully");
+
+                        const updatedItems = await getPasswords(
+                          user?.id as string
+                        );
+                        setPasswordItems(updatedItems?.passwordItems);
+                      } catch (error) {
+                        toast.error("Failed to delete password");
+                      }
+                    }}
+                    entry={selectedEntry}
+                  />
+                ) : (
+                  <EmptyState activeTab={activeTab} />
                 )}
               </div>
-            </ScrollArea>
-          </div>
-
-          <div className="flex-1 bg-white p-4 lg:p-6">
-            {selectedEntry && activeTab === "passwords" ? (
-              <PasswordDetails
-                onEdit={handleEditEntry}
-                onDelete={async () => {
-                  try {
-                    await deletePasswordItem(selectedEntry.id);
-                    router.refresh();
-                    setSelectedEntry(null);
-                    toast.success("Password deleted successfully");
-
-                    const updatedItems = await getPasswords(user?.id as string);
-                    setPasswordItems(updatedItems?.passwordItems);
-
-                    return;
-                  } catch (error) {
-                    toast.error("Failed to delete password");
-
-                    return;
-                  }
-                }}
-                entry={selectedEntry}
-              />
-            ) : (
-              <EmptyState activeTab={activeTab} />
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
       {isEditDialogOpen && (

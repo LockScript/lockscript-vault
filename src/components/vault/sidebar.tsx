@@ -1,7 +1,7 @@
-import {Button} from "@/components/ui/button";
-import {cn} from "@/lib/utils";
-import {UserButton} from "@clerk/nextjs";
-import {CreditCard,Key,Pin,Settings,StickyNote,X} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { UserButton } from "@clerk/nextjs";
+import { CreditCard, Key, Pin, Settings, StickyNote, X } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
@@ -62,6 +62,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           "w-full justify-start gap-3 rounded-xl px-4 py-3 transition-all hover:bg-rose-100 hover:text-rose-700",
           activeTab === "settings" && "bg-rose-50 text-rose-700"
         )}
+        onClick={() => {
+          setActiveTab("settings");
+          setIsSidebarOpen(false);
+        }}
       >
         <Settings className="h-5 w-5" />
         Settings
