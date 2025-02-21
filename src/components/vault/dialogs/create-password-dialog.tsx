@@ -24,12 +24,28 @@ const initialPasswordItemState = {
   password: "",
 };
 
+interface PasswordEntry {
+  id: string;
+  name: string;
+  username: string;
+  website: string;
+  password: string;
+  usernameIV: string;
+  websiteIV: string;
+  passwordIV: string;
+  updatedAt: string;
+  lastAccess: string;
+  created: string;
+}
+
 export const CreatePasswordDialog = ({
   open,
   onClose,
+  setSelectedEntry,
 }: {
   open: boolean;
   onClose: () => void;
+  setSelectedEntry: (entry: PasswordEntry) => void;
 }) => {
   const [passwordItem, setPasswordItem] = useState(initialPasswordItemState);
   const [loading, setLoading] = useState(false);
@@ -88,7 +104,7 @@ export const CreatePasswordDialog = ({
         clerkuser.id
       );
 
-      await createPasswordItem(
+      const item = await createPasswordItem(
         encryptedUsername.encryptedData,
         encryptedWebsite.encryptedData,
         encryptedPassword.encryptedData,
@@ -97,8 +113,23 @@ export const CreatePasswordDialog = ({
         encryptedPassword.iv
       );
 
+      const passwordEntry: PasswordEntry = {
+        id: item.id,
+        name: passwordItem.name,
+        username: passwordItem.username,
+        website: passwordItem.website,
+        password: passwordItem.password,
+        usernameIV: item.usernameIV,
+        websiteIV: item.websiteIV,
+        passwordIV: item.passwordIV,
+        updatedAt: item.updatedAt.toISOString(),
+        lastAccess: item.updatedAt.toISOString(),
+        created: item.createdAt.toISOString()
+      };
+
       toast.success("Password created");
       setPasswordItem(initialPasswordItemState);
+      setSelectedEntry(passwordEntry);
       onClose();
     } catch (error) {
       toast.error("Failed to create password");

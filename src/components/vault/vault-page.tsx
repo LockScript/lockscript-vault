@@ -12,7 +12,15 @@ import { cn } from "@/lib/utils";
 import { decrypt, generateAndStoreKey, retrieveKey } from "@/utils/encryption";
 import { useUser } from "@clerk/nextjs";
 import type { Prisma } from "@prisma/client";
-import { Plus, SquareArrowOutUpRight, Trash, User } from "lucide-react";
+import {
+  Plus,
+  SquareArrowOutUpRight,
+  Trash,
+  User,
+  ArrowDownAZ,
+  ArrowDownWideNarrow,
+  Clock,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -27,6 +35,7 @@ import {
 import { EmptyState } from "./empty-state";
 import { PasswordDetails } from "./password-details";
 import { Sidebar } from "./sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface PasswordEntry {
   id: string;
@@ -65,9 +74,11 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredEntries, setFilteredEntries] = useState<PasswordEntry[]>([]);
   const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
   const [passwordItems, setPasswordItems] = useState(user?.passwordItems);
+  const [sortBy, setSortBy] = useState<"name" | "created" | "updated">(
+    "created"
+  );
 
   useEffect(() => {
     const ensureEncryptionKey = async () => {
@@ -139,15 +150,58 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
     decryptPasswords();
   }, [user?.passwordItems, clerkUser, passwordItems]);
 
+  useEffect(() => {
+    const sortPasswords = () => {
+      const sorted = [...passwords].sort((a, b) => {
+        switch (sortBy) {
+          case "name":
+            return a.name.localeCompare(b.name);
+          case "updated":
+            return (
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            );
+          default: // 'created'
+            return (
+              new Date(b.created).getTime() - new Date(a.created).getTime()
+            );
+        }
+      });
+      setPasswords(sorted);
+    };
+    sortPasswords();
+  }, [sortBy]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    // Filter entries based on search query
-    // ... (filter entries logic)
   };
 
   const handleEditEntry = () => {
     setIsEditDialogOpen(true);
   };
+
+  const filteredAndSortedPasswords = passwords
+    .filter((password) => {
+      if (!searchQuery) return true;
+
+      const search = searchQuery.toLowerCase();
+      return (
+        password.name.toLowerCase().includes(search) ||
+        password.username.toLowerCase().includes(search) ||
+        password.website.toLowerCase().includes(search)
+      );
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "updated":
+          return (
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
+        default: // 'created'
+          return new Date(b.created).getTime() - new Date(a.created).getTime();
+      }
+    });
 
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-900">
@@ -182,6 +236,63 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                   onChange={handleSearchChange}
                   className="w-48 focus:ring-0 ring-0 focus-visible:ring-0 dark:bg-gray-800 dark:text-white"
                 />
+                <div className="w-1/3 overflow-y-auto">
+                  <div className="flex items-center gap-2 p-4">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "h-8 w-8 p-0",
+                            sortBy === "name" &&
+                              "bg-rose-50 dark:bg-rose-900 text-rose-900 dark:text-rose-50"
+                          )}
+                          onClick={() => setSortBy("name")}
+                        >
+                          <ArrowDownAZ className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Sort alphabetically</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "h-8 w-8 p-0",
+                            sortBy === "created" &&
+                              "bg-rose-50 dark:bg-rose-900 text-rose-900 dark:text-rose-50"
+                          )}
+                          onClick={() => setSortBy("created")}
+                        >
+                          <ArrowDownWideNarrow className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Sort by created</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "h-8 w-8 p-0",
+                            sortBy === "updated" &&
+                              "bg-rose-50 dark:bg-rose-900 text-rose-900 dark:text-rose-50"
+                          )}
+                          onClick={() => setSortBy("updated")}
+                        >
+                          <Clock className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Sort by updated</TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
                 <Button
                   size="icon"
                   className="bg-rose-50 hover:hover:bg-rose-100 dark:bg-rose-900 dark:hover:bg-rose-800"
@@ -205,7 +316,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                 <ScrollArea className="h-full">
                   <div className="space-y-2 p-4">
                     {activeTab === "passwords" &&
-                      passwords.map((password) => (
+                      filteredAndSortedPasswords.map((password) => (
                         <ContextMenu key={password.id}>
                           <ContextMenuTrigger>
                             <Button
@@ -363,6 +474,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
           const updatedItems = await getPasswords(user?.id as string);
           setPasswordItems(updatedItems?.passwordItems);
         }}
+        setSelectedEntry={setSelectedEntry}
       />
     </div>
   );
