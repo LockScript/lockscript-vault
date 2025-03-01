@@ -13,13 +13,14 @@ import { decrypt, generateAndStoreKey, retrieveKey } from "@/utils/encryption";
 import { useUser } from "@clerk/nextjs";
 import type { Prisma } from "@prisma/client";
 import {
+  ArrowDownAZ,
+  ArrowDownWideNarrow,
+  Clock,
   Plus,
   SquareArrowOutUpRight,
   Trash,
   User,
-  ArrowDownAZ,
-  ArrowDownWideNarrow,
-  Clock,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -32,10 +33,11 @@ import {
   ContextMenuLabel,
   ContextMenuTrigger,
 } from "../ui/context-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { ConfirmationDialog } from "./dialogs/confirm-dialog";
 import { EmptyState } from "./empty-state";
 import { PasswordDetails } from "./password-details";
 import { Sidebar } from "./sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface PasswordEntry {
   id: string;
@@ -79,6 +81,11 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const [sortBy, setSortBy] = useState<"name" | "created" | "updated">(
     "created"
   );
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
+    useState(false);
+  const [passwordToDelete, setPasswordToDelete] =
+    useState<PasswordEntry | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const ensureEncryptionKey = async () => {
@@ -319,10 +326,9 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                       filteredAndSortedPasswords.map((password) => (
                         <ContextMenu key={password.id}>
                           <ContextMenuTrigger>
-                            <Button
-                              variant="ghost"
+                            <div
                               className={cn(
-                                "w-full justify-start rounded-xl p-4 text-left transition-all hover:bg-rose-50/50 dark:hover:bg-rose-900/50",
+                                "flex w-full justify-between rounded-xl p-2 text-left transition-all hover:bg-rose-50/50 dark:hover:bg-rose-900/50 hover:cursor-pointer",
                                 selectedEntry?.id === password.id &&
                                   "bg-rose-50 dark:bg-rose-900"
                               )}
@@ -347,7 +353,20 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                                   </div>
                                 </div>
                               </div>
-                            </Button>
+
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-muted-foreground hover:text-foreground"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPasswordToDelete(password);
+                                  setIsConfirmationDialogOpen(true);
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </ContextMenuTrigger>
                           <ContextMenuContent className="rounded-xl">
                             <ContextMenuLabel>
@@ -413,7 +432,16 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                           </ContextMenuContent>
                         </ContextMenu>
                       ))}
-
+                    {activeTab === "notes" && (
+                      <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
+                        No {activeTab} available
+                      </div>
+                    )}
+                    {activeTab === "pins" && (
+                      <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
+                        No {activeTab} available
+                      </div>
+                    )}
                     {activeTab === "cards" && (
                       <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
                         No {activeTab} available
@@ -452,6 +480,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
           )}
         </div>
       </div>
+
       {isEditDialogOpen && (
         <EditPasswordDialog
           isOpen={isEditDialogOpen}
@@ -466,6 +495,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
           entry={selectedEntry}
         />
       )}
+      
       <CreatePasswordDialog
         open={isCreateDialogOpen}
         onClose={async () => {
@@ -475,6 +505,34 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
           setPasswordItems(updatedItems?.passwordItems);
         }}
         setSelectedEntry={setSelectedEntry}
+      />
+
+      <ConfirmationDialog
+        open={isConfirmationDialogOpen}
+        onClose={() => setIsConfirmationDialogOpen(false)}
+        title="Delete Password"
+        message="Are you sure you want to delete this password? This action cannot be undone."
+        onConfirm={async () => {
+          if (passwordToDelete) {
+            setIsDeleting(true);
+            try {
+              await deletePasswordItem(passwordToDelete.id);
+              const updatedItems = await getPasswords(user?.id as string);
+              setPasswordItems(updatedItems?.passwordItems);
+              if (selectedEntry?.id === passwordToDelete.id) {
+                setSelectedEntry(null);
+              }
+              toast.success("Password deleted successfully");
+            } catch {
+              toast.error("Failed to delete password");
+            } finally {
+              setIsDeleting(false);
+              setIsConfirmationDialogOpen(false);
+              setPasswordToDelete(null);
+            }
+          }
+        }}
+        loading={isDeleting}
       />
     </div>
   );

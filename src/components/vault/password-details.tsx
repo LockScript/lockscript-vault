@@ -22,6 +22,7 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { ConfirmationDialog } from "./dialogs/confirm-dialog";
 
 interface PasswordEntry {
   id: string;
@@ -45,7 +46,16 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleDelete = () => {
+    setIsLoading(true);
+    onDelete();
+    setIsDialogOpen(false);
+    setIsLoading(false);
+  };
 
   return (
     <div className="space-y-6 mx-auto">
@@ -68,7 +78,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
               <Settings className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDelete}>
+            <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
               <Trash className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
@@ -155,6 +165,15 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
           ))}
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this password entry? This action cannot be undone."
+        onConfirm={handleDelete}
+        loading={isLoading}
+      />
     </div>
   );
 };

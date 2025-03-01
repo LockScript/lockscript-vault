@@ -74,7 +74,14 @@ export const CreatePasswordDialog = ({
   const handleSave = async () => {
     setLoading(true);
 
-    const validationResult = passwordSchema.safeParse(passwordItem);
+    const updatedPasswordItem = {
+      ...passwordItem,
+      website: passwordItem.website.startsWith("https://")
+        ? passwordItem.website
+        : `https://${passwordItem.website}`,
+    };
+
+    const validationResult = passwordSchema.safeParse(updatedPasswordItem);
 
     if (!validationResult.success) {
       const errorMessage =
@@ -92,15 +99,15 @@ export const CreatePasswordDialog = ({
 
     try {
       const encryptedUsername = await encrypt(
-        passwordItem.username,
+        updatedPasswordItem.username,
         clerkuser.id
       );
       const encryptedWebsite = await encrypt(
-        passwordItem.website,
+        updatedPasswordItem.website,
         clerkuser.id
       );
       const encryptedPassword = await encrypt(
-        passwordItem.password,
+        updatedPasswordItem.password,
         clerkuser.id
       );
 
@@ -115,16 +122,16 @@ export const CreatePasswordDialog = ({
 
       const passwordEntry: PasswordEntry = {
         id: item.id,
-        name: passwordItem.name,
-        username: passwordItem.username,
-        website: passwordItem.website,
-        password: passwordItem.password,
+        name: updatedPasswordItem.name,
+        username: updatedPasswordItem.username,
+        website: updatedPasswordItem.website,
+        password: updatedPasswordItem.password,
         usernameIV: item.usernameIV,
         websiteIV: item.websiteIV,
         passwordIV: item.passwordIV,
         updatedAt: item.updatedAt.toISOString(),
         lastAccess: item.updatedAt.toISOString(),
-        created: item.createdAt.toISOString()
+        created: item.createdAt.toISOString(),
       };
 
       toast.success("Password created");
