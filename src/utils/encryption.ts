@@ -21,6 +21,31 @@ export const generateAndStoreKey = async (userId: string) => {
   }
 };
 
+export const setEncryptionKey = async (keyString: string, userId: string) => {
+  try {
+    if (!keyString || !userId) {
+      throw new Error('Key and userId are required.');
+    }
+
+    const binaryKey = Uint8Array.from(atob(keyString), (char) => char.charCodeAt(0));
+
+    const key = await crypto.subtle.importKey(
+      "raw",
+      binaryKey,
+      { name: "AES-GCM" },
+      true,
+      ["encrypt", "decrypt"]
+    );
+
+    localStorage.setItem(`encryptionKey-${userId}`, keyString);
+
+    return key;
+  } catch (error) {
+    console.error('Setting encryption key failed:', error);
+    throw new Error('Failed to set encryption key.');
+  }
+};
+
 export const retrieveKey = async (userId: string) => {
   const keyString = localStorage.getItem(`encryptionKey-${userId}`);
   if (!keyString) throw new Error("Encryption key not found.");

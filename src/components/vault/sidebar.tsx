@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         Settings
       </Button>
       <span className="text-xs text-gray-500 block text-left mt-4">
-        LockScript Vault v0.1.1b
+        LockScript Vault v0.1.2b
       </span>
     </div>
   </div>

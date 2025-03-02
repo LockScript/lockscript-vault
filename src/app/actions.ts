@@ -124,6 +124,51 @@ export async function createPasswordItem(
   return newPasswordItem;
 }
 
+export async function resetVault() {
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prismadb.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  await prismadb.passwordItem.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  await prismadb.cardItem.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  await prismadb.pinItem.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  await prismadb.noteItem.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  return { success: true };
+}
+
+
 export async function instantiateVault(userId: string, username: string) {
   const vault = await prismadb.user.create({
     data: {
@@ -141,7 +186,23 @@ export async function instantiateVault(userId: string, username: string) {
   return vault;
 }
 
-export async function getPasswords(userId: string) {
+export async function getPasswords() {
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prismadb.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   return prismadb.user.findUnique({
     where: {
       id: userId,

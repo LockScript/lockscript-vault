@@ -7,7 +7,7 @@ export default async function Page() {
 
   if (!userId) return redirectToSignIn();
 
-  const user = await getPasswords(userId);
+  const user = await getPasswords();
 
   if (!user) {
     const clerkUser = await currentUser();

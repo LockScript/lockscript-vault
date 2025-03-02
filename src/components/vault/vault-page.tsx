@@ -3,7 +3,6 @@
 import { deletePasswordItem, getPasswords } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { CreatePasswordDialog } from "@/components/vault/dialogs/create-password-dialog";
 import { EditPasswordDialog } from "@/components/vault/dialogs/edit-password-dialog";
@@ -12,31 +11,16 @@ import { cn } from "@/lib/utils";
 import { decrypt, generateAndStoreKey, retrieveKey } from "@/utils/encryption";
 import { useUser } from "@clerk/nextjs";
 import type { Prisma } from "@prisma/client";
-import {
-  ArrowDownAZ,
-  ArrowDownWideNarrow,
-  Clock,
-  Plus,
-  SquareArrowOutUpRight,
-  Trash,
-  User,
-  X,
-} from "lucide-react";
-import Image from "next/image";
+import { ArrowDownAZ, ArrowDownWideNarrow, Clock, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuLabel,
-  ContextMenuTrigger,
-} from "../ui/context-menu";
+import { ScrollArea } from "../ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { ConfirmationDialog } from "./dialogs/confirm-dialog";
 import { EmptyState } from "./empty-state";
-import { PasswordDetails } from "./password-details";
+import { PasswordDetails } from "./password/password-details";
+import PaswordTab from "./password/password-tab";
 import { Sidebar } from "./sidebar";
 
 interface PasswordEntry {
@@ -69,36 +53,37 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const { user: clerkUser } = useUser();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("passwords");
-  const [selectedEntry, setSelectedEntry] = useState<PasswordEntry | null>(
-    null
-  );
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
-  const [passwordItems, setPasswordItems] = useState(user?.passwordItems);
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
+    useState(false);
+
+  const [activeTab, setActiveTab] = useState("passwords");
   const [sortBy, setSortBy] = useState<"name" | "created" | "updated">(
     "created"
   );
-  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
-    useState(false);
+
+  const [selectedEntry, setSelectedEntry] = useState<PasswordEntry | null>(
+    null
+  );
+  const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
+  const [passwordItems, setPasswordItems] = useState(user?.passwordItems);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [passwordToDelete, setPasswordToDelete] =
     useState<PasswordEntry | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const ensureEncryptionKey = async () => {
       if (!clerkUser) return;
 
-      const userId = clerkUser.id;
-
       try {
-        await retrieveKey(userId);
+        await retrieveKey(clerkUser.id);
         toast.success("Encryption key found");
       } catch {
         toast.success("Generating encryption key...");
-        await generateAndStoreKey(userId);
+        await generateAndStoreKey(clerkUser.id);
       }
     };
 
@@ -106,9 +91,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   }, [clerkUser]);
 
   useEffect(() => {
-    if (!clerkUser) return;
-
-    if (!user?.passwordItems || !passwordItems) return;
+    if (!clerkUser || !user?.passwordItems || !passwordItems) return;
 
     const decryptPasswords = async () => {
       const decryptedPasswords = await Promise.all(
@@ -167,7 +150,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             return (
               new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
             );
-          default: // 'created'
+          default:
             return (
               new Date(b.created).getTime() - new Date(a.created).getTime()
             );
@@ -180,10 +163,6 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-  };
-
-  const handleEditEntry = () => {
-    setIsEditDialogOpen(true);
   };
 
   const filteredAndSortedPasswords = passwords
@@ -205,7 +184,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
           return (
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           );
-        default: // 'created'
+        default:
           return new Date(b.created).getTime() - new Date(a.created).getTime();
       }
     });
@@ -319,119 +298,24 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             </div>
           ) : (
             <>
-              <div className="w-1/3 overflow-y-auto border-r dark:border-gray-800">
+              <div className="w-1/3 overflow-y-auto border-r border-t dark:border-gray-800">
                 <ScrollArea className="h-full">
                   <div className="space-y-2 p-4">
-                    {activeTab === "passwords" &&
-                      filteredAndSortedPasswords.map((password) => (
-                        <ContextMenu key={password.id}>
-                          <ContextMenuTrigger>
-                            <div
-                              className={cn(
-                                "flex w-full justify-between rounded-xl p-2 text-left transition-all hover:bg-rose-50/50 dark:hover:bg-rose-900/50 hover:cursor-pointer",
-                                selectedEntry?.id === password.id &&
-                                  "bg-rose-50 dark:bg-rose-900"
-                              )}
-                              onClick={() => setSelectedEntry(password)}
-                            >
-                              <div className="flex w-full items-center gap-3">
-                                <div className="flex-shrink-0 rounded-xl bg-rose-100 dark:bg-rose-800 p-2">
-                                  <Image
-                                    height={40}
-                                    width={40}
-                                    alt="Site"
-                                    src={`https://s2.googleusercontent.com/s2/favicons?domain=${password.website}&sz=128`}
-                                    className="h-4 w-4 rounded-full bg-primary/10 object-cover"
-                                  />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-gray-900 dark:text-white truncate">
-                                    {password.name}
-                                  </div>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                    {password.username}
-                                  </div>
-                                </div>
-                              </div>
+                    {activeTab === "passwords" && (
+                      <PaswordTab
+                        activeTab={activeTab}
+                        selectedEntry={selectedEntry}
+                        setSelectedEntry={setSelectedEntry}
+                        setPasswordToDelete={setPasswordToDelete}
+                        setIsConfirmationDialogOpen={
+                          setIsConfirmationDialogOpen
+                        }
+                        setPasswordItems={setPasswordItems}
+                        setIsEditDialogOpen={setIsEditDialogOpen}
+                        filteredAndSortedPasswords={filteredAndSortedPasswords}
+                      />
+                    )}
 
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-muted-foreground hover:text-foreground"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setPasswordToDelete(password);
-                                  setIsConfirmationDialogOpen(true);
-                                }}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </ContextMenuTrigger>
-                          <ContextMenuContent className="rounded-xl">
-                            <ContextMenuLabel>
-                              <div className="font-medium text-gray-900">
-                                {password.name}
-                              </div>
-                            </ContextMenuLabel>
-                            <ContextMenuItem
-                              onClick={() => {
-                                try {
-                                  window.open(password.website, "_blank");
-                                  toast.success("Website opened successfully");
-                                } catch (error) {
-                                  toast.error("Failed to open website");
-                                }
-                              }}
-                            >
-                              <SquareArrowOutUpRight className="h-4 w-4 mr-2" />
-                              Open Website
-                            </ContextMenuItem>
-                            <ContextMenuItem
-                              onClick={() => {
-                                try {
-                                  navigator.clipboard.writeText(
-                                    password.username
-                                  );
-                                  toast.success("Username copied successfully");
-                                } catch (error) {
-                                  toast.error("Failed to copy username");
-                                }
-                              }}
-                            >
-                              <User className="h-4 w-4 mr-2" />
-                              Copy Username
-                            </ContextMenuItem>
-                            <ContextMenuItem
-                              onClick={async () => {
-                                try {
-                                  await deletePasswordItem(password.id);
-                                  const updatedItems = await getPasswords(
-                                    user?.id as string
-                                  );
-                                  setPasswordItems(updatedItems?.passwordItems);
-                                  if (selectedEntry?.id === password.id) {
-                                    setSelectedEntry(null);
-                                  }
-
-                                  toast.success(
-                                    "Password deleted successfully"
-                                  );
-
-                                  return;
-                                } catch (error) {
-                                  toast.error("Failed to delete password");
-
-                                  return;
-                                }
-                              }}
-                            >
-                              <Trash className="h-4 w-4 mr-2" />
-                              Delete
-                            </ContextMenuItem>
-                          </ContextMenuContent>
-                        </ContextMenu>
-                      ))}
                     {activeTab === "notes" && (
                       <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
                         No {activeTab} available
@@ -450,11 +334,10 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                   </div>
                 </ScrollArea>
               </div>
-
-              <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-4 lg:p-6">
+              <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-4 lg:p-6 border-t">
                 {selectedEntry && activeTab === "passwords" ? (
                   <PasswordDetails
-                    onEdit={handleEditEntry}
+                    onEdit={() => setIsEditDialogOpen(true)}
                     onDelete={async () => {
                       try {
                         await deletePasswordItem(selectedEntry.id);
@@ -462,9 +345,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                         setSelectedEntry(null);
                         toast.success("Password deleted successfully");
 
-                        const updatedItems = await getPasswords(
-                          user?.id as string
-                        );
+                        const updatedItems = await getPasswords();
                         setPasswordItems(updatedItems?.passwordItems);
                       } catch (error) {
                         toast.error("Failed to delete password");
@@ -489,19 +370,19 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             router.refresh();
             setSelectedEntry(null);
 
-            const updatedItems = await getPasswords(user?.id as string);
+            const updatedItems = await getPasswords();
             setPasswordItems(updatedItems?.passwordItems);
           }}
           entry={selectedEntry}
         />
       )}
-      
+
       <CreatePasswordDialog
         open={isCreateDialogOpen}
         onClose={async () => {
           setIsCreateDialogOpen(false);
 
-          const updatedItems = await getPasswords(user?.id as string);
+          const updatedItems = await getPasswords();
           setPasswordItems(updatedItems?.passwordItems);
         }}
         setSelectedEntry={setSelectedEntry}
@@ -517,7 +398,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             setIsDeleting(true);
             try {
               await deletePasswordItem(passwordToDelete.id);
-              const updatedItems = await getPasswords(user?.id as string);
+              const updatedItems = await getPasswords();
               setPasswordItems(updatedItems?.passwordItems);
               if (selectedEntry?.id === passwordToDelete.id) {
                 setSelectedEntry(null);

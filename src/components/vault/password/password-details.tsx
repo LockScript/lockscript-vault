@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { ConfirmationDialog } from "./dialogs/confirm-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
+import { ConfirmationDialog } from "../dialogs/confirm-dialog";
 
 interface PasswordEntry {
   id: string;
@@ -88,7 +88,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
 
       <div>
         <DetailItem
-          icon={<Globe className="h-4 w-4 flex-shrink-0" />}
+          icon={<Globe className="h-4 w-4 shrink-0" />}
           value={entry.website}
           onCopy={() => {
             navigator.clipboard.writeText(entry.website);
@@ -104,7 +104,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
         </DetailItem>
 
         <DetailItem
-          icon={<User className="h-4 w-4 flex-shrink-0" />}
+          icon={<User className="h-4 w-4 shrink-0" />}
           value={entry.username}
           onCopy={() => {
             navigator.clipboard.writeText(entry.username);
@@ -114,7 +114,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
         />
 
         <DetailItem
-          icon={<Lock className="h-4 w-4 flex-shrink-0" />}
+          icon={<Lock className="h-4 w-4 shrink-0" />}
           value={
             isPasswordVisible
               ? entry.password
