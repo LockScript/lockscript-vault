@@ -19,7 +19,7 @@ import {
   Trash,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
 import { ConfirmationDialog } from "../dialogs/confirm-dialog";
@@ -56,6 +56,10 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
     setIsDialogOpen(false);
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    setIsPasswordVisible(false);
+  }, [entry]);
 
   return (
     <div className="space-y-6 mx-auto">
