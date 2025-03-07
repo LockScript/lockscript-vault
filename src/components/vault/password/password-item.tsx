@@ -1,17 +1,17 @@
-import {deletePasswordItem,getPasswords} from "@/app/actions";
-import {Button} from "@/components/ui/button";
+import { deletePasswordItem, getPasswords } from "@/app/actions";
+import { Button } from "@/components/ui/button";
 import {
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuLabel,
-    ContextMenuTrigger,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import {cn} from "@/lib/utils";
-import {$Enums} from "@prisma/client";
-import {SquareArrowOutUpRight,Trash,User,X} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { $Enums } from "@prisma/client";
+import { SquareArrowOutUpRight, Trash, User, X } from "lucide-react";
 import Image from "next/image";
-import {SetStateAction} from "react";
+import { SetStateAction } from "react";
 import toast from "react-hot-toast";
 
 interface PasswordEntry {
@@ -68,7 +68,8 @@ const PasswordItem = ({
         <div
           className={cn(
             "flex w-full justify-between rounded-xl p-2 text-left transition-all hover:bg-rose-50/50 dark:hover:bg-rose-900/50 hover:cursor-pointer",
-            selectedEntry?.id === password.id && "bg-rose-50 dark:bg-rose-900"
+            selectedEntry?.id === password.id &&
+              "bg-rose-50 dark:bg-rose-900 hover:bg-rose-50/60"
           )}
           onClick={() => setSelectedEntry(password)}
         >
@@ -92,21 +93,23 @@ const PasswordItem = ({
             </div>
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "text-muted-foreground hover:text-foreground hover:bg-rose-50",
-              selectedEntry?.id === password.id && "bg-rose-100"
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              setPasswordToDelete(password);
-              setIsConfirmationDialogOpen(true);
-            }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          {selectedEntry?.id === password.id && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "text-muted-foreground hover:text-foreground hover:bg-muted rounded-full",
+                selectedEntry?.id === password.id && "bg-muted/20"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPasswordToDelete(password);
+                setIsConfirmationDialogOpen(true);
+              }}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent className="rounded-xl">
