@@ -109,10 +109,6 @@ export function Settings() {
         <CardContent>
           <Tabs defaultValue="general" className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="general" className="flex items-center gap-2">
-                <Settings2 className="h-4 w-4" />
-                <span>General</span>
-              </TabsTrigger>
               <TabsTrigger value="security" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 <span>Security</span>
@@ -123,40 +119,8 @@ export function Settings() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="general" className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-3">
-                  <div>
-                    <h3 className="font-medium">Dark Mode</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Toggle between light and dark theme
-                    </p>
-                  </div>
-                  <Switch />
-                </div>
-                <div className="flex items-center justify-between border-b pb-3">
-                  <div>
-                    <h3 className="font-medium">Auto Lock</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Automatically lock the vault after inactivity
-                    </p>
-                  </div>
-                  <Switch />
-                </div>
-              </div>
-            </TabsContent>
-
             <TabsContent value="security" className="space-y-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-3">
-                  <div>
-                    <h3 className="font-medium">Biometric Lock</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Use fingerprint or face ID to unlock the vault
-                    </p>
-                  </div>
-                  <Switch />
-                </div>
                 <div className="flex items-center justify-between border-b pb-3">
                   <div>
                     <h3 className="font-medium">Lock on Idle</h3>
@@ -164,7 +128,7 @@ export function Settings() {
                       Lock the vault when your device is idle
                     </p>
                   </div>
-                  <Switch />
+                  <Switch disabled />
                 </div>
               </div>
             </TabsContent>

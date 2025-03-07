@@ -159,13 +159,14 @@ export const CreatePasswordDialog = ({
           <DialogTitle>Create Password</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="relative">
+          <div className="flex relative rounded-lg">
             <Input
               placeholder="Name"
               value={passwordItem.name}
               onChange={handleChange}
               maxLength={50}
               name="name"
+              className="-ms-px h-12 rounded-tl-none rounded-bl-none"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
@@ -175,13 +176,14 @@ export const CreatePasswordDialog = ({
               {passwordItem.name.length}/50
             </div>
           </div>
-          <div className="relative">
+          <div className="flex relative rounded-lg">
             <Input
               placeholder="Username"
               value={passwordItem.username}
               onChange={handleChange}
               maxLength={30}
               name="username"
+              className="-ms-px h-12 rounded-tl-none rounded-bl-none"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"
@@ -211,7 +213,7 @@ export const CreatePasswordDialog = ({
               {passwordItem.website.length}/50
             </div>
           </div>
-          <div className="relative">
+          <div className="flex relative rounded-lg">
             <Input
               placeholder="Password"
               value={passwordItem.password}
@@ -219,6 +221,7 @@ export const CreatePasswordDialog = ({
               type="password"
               name="password"
               maxLength={128}
+              className="-ms-px h-12 rounded-tl-none rounded-bl-none"
             />
             <div
               className="pointer-events-none absolute inset-y-0 end-0 flex items-center justify-center pe-3 text-xs tabular-nums text-muted-foreground peer-disabled:opacity-50"

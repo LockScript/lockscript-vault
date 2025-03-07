@@ -96,7 +96,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
           value={entry.website}
           onCopy={() => {
             navigator.clipboard.writeText(entry.website);
-            toast.success("Copied website successfully");
+            toast.success("Copied website");
           }}
           className="rounded-tl-xl rounded-tr-xl"
         >
@@ -112,7 +112,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
           value={entry.username}
           onCopy={() => {
             navigator.clipboard.writeText(entry.username);
-            toast.success("Copied username successfully");
+            toast.success("Copied username");
           }}
           className="py-6"
         />
@@ -126,7 +126,7 @@ export const PasswordDetails: React.FC<PasswordDetailsProps> = ({
           }
           onCopy={() => {
             navigator.clipboard.writeText(entry.password);
-            toast.success("Copied password successfully");
+            toast.success("Copied password");
           }}
           className="rounded-br-xl rounded-bl-xl"
         >
@@ -207,7 +207,7 @@ const DetailItem: React.FC<DetailItemProps> = ({
       <TooltipContent>Copy</TooltipContent>
       <TooltipTrigger
         onClick={onCopy}
-        className="flex items-center space-x-2 max-w-[calc(100%-2rem)] overflow-hidden"
+        className="flex items-center space-x-2 max-w-[calc(100%-2rem)] overflow-hidden hover:cursor-pointer"
       >
         {icon}
         <span className="text-gray-900 dark:text-gray-100 truncate">
