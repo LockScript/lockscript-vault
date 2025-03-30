@@ -1,4 +1,4 @@
-import { deletePasswordItem, getPasswords } from "@/app/actions";
+import { deletePasswordItem, getItems } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 import { $Enums } from "@prisma/client";
-import { SquareArrowOutUpRight, Trash, User, X } from "lucide-react";
+import { Globe, SquareArrowOutUpRight, Trash, User, X } from "lucide-react";
 import Image from "next/image";
-import { SetStateAction } from "react";
+import { SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
 
 interface PasswordEntry {
@@ -62,6 +62,8 @@ const PasswordItem = ({
     >
   >;
 }) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -75,13 +77,20 @@ const PasswordItem = ({
         >
           <div className="flex w-full items-center gap-3">
             <div className="shrink-0 rounded-xl bg-rose-100 dark:bg-rose-800 p-1">
-              <Image
-                height={80}
-                width={80}
-                alt="Site"
-                src={`https://s2.googleusercontent.com/s2/favicons?domain=${password.website}&sz=128`}
-                className="h-8 w-8 rounded-full bg-primary/10 object-cover"
-              />
+              {!imageError ? (
+                <Image
+                  height={80}
+                  width={80}
+                  alt="Site"
+                  src={`https://s2.googleusercontent.com/s2/favicons?domain=${password.website}&sz=128`}
+                  className="h-8 w-8 rounded-full bg-primary/10 object-cover"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="h-8 w-8 rounded-full flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-gray-500" />
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium text-gray-900 dark:text-white truncate">
@@ -146,7 +155,7 @@ const PasswordItem = ({
           onClick={async () => {
             try {
               await deletePasswordItem(password.id);
-              const updatedItems = await getPasswords();
+              const updatedItems = await getItems();
               setPasswordItems(updatedItems?.passwordItems);
               if (selectedEntry?.id === password.id) {
                 setSelectedEntry(null);

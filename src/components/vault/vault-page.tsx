@@ -1,6 +1,11 @@
 "use client";
 
-import { deletePasswordItem, getPasswords } from "@/app/actions";
+import {
+  deleteNoteItem,
+  deletePasswordItem,
+  getItems,
+  updateNoteItem,
+} from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -8,9 +13,14 @@ import { CreatePasswordDialog } from "@/components/vault/dialogs/create-password
 import { EditPasswordDialog } from "@/components/vault/dialogs/edit-password-dialog";
 import { Settings } from "@/components/vault/settings";
 import { cn } from "@/lib/utils";
-import { decrypt, generateAndStoreKey, retrieveKey } from "@/utils/encryption";
+import {
+  decrypt,
+  encrypt,
+  generateAndStoreKey,
+  retrieveKey,
+} from "@/utils/encryption";
 import { useUser } from "@clerk/nextjs";
-import type { Prisma } from "@prisma/client";
+import type { NoteItem, Prisma } from "@prisma/client";
 import { ArrowDownAZ, ArrowDownWideNarrow, Clock, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -22,6 +32,9 @@ import { EmptyState } from "./empty-state";
 import { PasswordDetails } from "./password/password-details";
 import PaswordTab from "./password/password-tab";
 import { Sidebar } from "./sidebar";
+import { NoteDetails } from "./notes/note-details";
+import { NotesTab } from "./notes/notes-tab";
+import { CreateNoteDialog } from "./dialogs/create-note-dialog";
 
 interface PasswordEntry {
   id: string;
@@ -35,6 +48,16 @@ interface PasswordEntry {
   updatedAt: string;
   lastAccess: string;
   created: string;
+}
+
+interface NoteEntry {
+  id: string;
+  title: string;
+  content: string;
+  titleIV: string;
+  contentIV: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface VaultPageProps {
@@ -55,13 +78,15 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCreateNoteDialogOpen, setIsCreateNoteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState(false);
+  const [isEditNoteDialogOpen, setIsEditNoteDialogOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState("passwords");
   const [sortBy, setSortBy] = useState<"name" | "created" | "updated">(
-    "created"
+    "updated"
   );
 
   const [selectedEntry, setSelectedEntry] = useState<PasswordEntry | null>(
@@ -70,6 +95,10 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
   const [passwordItems, setPasswordItems] = useState(user?.passwordItems);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [notes, setNotes] = useState<NoteEntry[]>([]);
+  const [noteItems, setNoteItems] = useState(user?.noteItems);
+  const [selectedNote, setSelectedNote] = useState<NoteEntry | null>(null);
 
   const [passwordToDelete, setPasswordToDelete] =
     useState<PasswordEntry | null>(null);
@@ -91,7 +120,46 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
   }, [clerkUser]);
 
   useEffect(() => {
-    if (!clerkUser || !user?.passwordItems || !passwordItems) return;
+    if (
+      !clerkUser ||
+      !user?.passwordItems ||
+      !user?.noteItems ||
+      !passwordItems ||
+      !noteItems
+    )
+      return;
+
+    const decryptNotes = async () => {
+      const decryptedNotes = await Promise.all(
+        noteItems.map(async (note) => {
+          try {
+            const decryptedNote: NoteEntry = {
+              id: note.id,
+              title: await decrypt(note.title, note.titleIV, clerkUser.id),
+              content: await decrypt(
+                note.content,
+                note.contentIV,
+                clerkUser.id
+              ),
+              titleIV: note.titleIV,
+              contentIV: note.contentIV,
+              createdAt: note.createdAt.toISOString(),
+              updatedAt: note.updatedAt.toISOString(),
+            };
+            return decryptedNote;
+          } catch (error) {
+            console.error(`Error decrypting note ID: ${note.id}`, error);
+            return null;
+          }
+        })
+      );
+
+      setNotes(
+        decryptedNotes.filter((note): note is NoteEntry => note !== null)
+      );
+    };
+
+    decryptNotes();
 
     const decryptPasswords = async () => {
       const decryptedPasswords = await Promise.all(
@@ -138,7 +206,13 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
     };
 
     decryptPasswords();
-  }, [user?.passwordItems, clerkUser, passwordItems]);
+  }, [
+    user?.passwordItems,
+    user?.noteItems,
+    clerkUser,
+    passwordItems,
+    noteItems,
+  ]);
 
   useEffect(() => {
     const sortPasswords = () => {
@@ -186,6 +260,48 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
           );
         default:
           return new Date(b.created).getTime() - new Date(a.created).getTime();
+      }
+    });
+
+  const handleNoteDelete = async () => {
+    if (!selectedNote) return;
+
+    try {
+      await deleteNoteItem(selectedNote.id);
+      router.refresh();
+      setSelectedNote(null);
+      toast.success("Note deleted successfully");
+
+      const updatedItems = await getItems();
+
+      setNoteItems(updatedItems?.noteItems);
+    } catch (error) {
+      toast.error("Failed to delete note");
+    }
+  };
+
+  const filteredAndSortedNotes = notes
+    .filter((note) => {
+      if (!searchQuery) return true;
+
+      const search = searchQuery.toLowerCase();
+      return (
+        note.title.toLowerCase().includes(search) ||
+        note.content.toLowerCase().includes(search)
+      );
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.title.localeCompare(b.title);
+        case "updated":
+          return (
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
+        default:
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
       }
     });
 
@@ -282,7 +398,13 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
                 <Button
                   size="icon"
                   className="bg-rose-50 hover:hover:bg-rose-100 dark:bg-rose-900 dark:hover:bg-rose-800"
-                  onClick={() => setIsCreateDialogOpen(true)}
+                  onClick={() => {
+                    if (activeTab === "notes") {
+                      setIsCreateNoteDialogOpen(true);
+                    } else {
+                      setIsCreateDialogOpen(true);
+                    }
+                  }}
                 >
                   <Plus className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                 </Button>
@@ -292,73 +414,124 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          {activeTab === "settings" ? (
-            <div className="flex-1 overflow-y-auto">
-              <Settings />
-            </div>
-          ) : (
-            <>
-              <div className="w-1/3 overflow-y-auto border-r border-t dark:border-gray-800">
-                <ScrollArea className="h-full">
-                  <div className="space-y-2 p-4">
-                    {activeTab === "passwords" && (
-                      <PaswordTab
-                        activeTab={activeTab}
-                        selectedEntry={selectedEntry}
-                        setSelectedEntry={setSelectedEntry}
-                        setPasswordToDelete={setPasswordToDelete}
-                        setIsConfirmationDialogOpen={
-                          setIsConfirmationDialogOpen
-                        }
-                        setPasswordItems={setPasswordItems}
-                        setIsEditDialogOpen={setIsEditDialogOpen}
-                        filteredAndSortedPasswords={filteredAndSortedPasswords}
-                      />
-                    )}
-
-                    {activeTab === "notes" && (
-                      <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
-                        No {activeTab} available
-                      </div>
-                    )}
-                    {activeTab === "pins" && (
-                      <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
-                        No {activeTab} available
-                      </div>
-                    )}
-                    {activeTab === "cards" && (
-                      <div className="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
-                        No {activeTab} available
-                      </div>
-                    )}
+          {(() => {
+            switch (activeTab) {
+              case "settings":
+                return (
+                  <div className="flex-1 overflow-y-auto">
+                    <Settings />
                   </div>
-                </ScrollArea>
-              </div>
-              <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-4 lg:p-6 border-t">
-                {selectedEntry && activeTab === "passwords" ? (
-                  <PasswordDetails
-                    onEdit={() => setIsEditDialogOpen(true)}
-                    onDelete={async () => {
-                      try {
-                        await deletePasswordItem(selectedEntry.id);
-                        router.refresh();
-                        setSelectedEntry(null);
-                        toast.success("Password deleted successfully");
+                );
 
-                        const updatedItems = await getPasswords();
-                        setPasswordItems(updatedItems?.passwordItems);
-                      } catch (error) {
-                        toast.error("Failed to delete password");
-                      }
-                    }}
-                    entry={selectedEntry}
-                  />
-                ) : (
-                  <EmptyState activeTab={activeTab} />
-                )}
-              </div>
-            </>
-          )}
+              case "passwords":
+                return (
+                  <>
+                    <div className="w-1/3 overflow-y-auto border-r border-t dark:border-gray-800">
+                      <ScrollArea className="h-full">
+                        <div className="space-y-2 p-4">
+                          <PaswordTab
+                            activeTab={activeTab}
+                            selectedEntry={selectedEntry}
+                            setSelectedEntry={setSelectedEntry}
+                            setPasswordToDelete={setPasswordToDelete}
+                            setIsConfirmationDialogOpen={
+                              setIsConfirmationDialogOpen
+                            }
+                            setPasswordItems={setPasswordItems}
+                            setIsEditDialogOpen={setIsEditDialogOpen}
+                            filteredAndSortedPasswords={
+                              filteredAndSortedPasswords
+                            }
+                          />
+                        </div>
+                      </ScrollArea>
+                    </div>
+                    <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-4 lg:p-6 border-t">
+                      {selectedEntry && (
+                        <PasswordDetails
+                          onEdit={() => setIsEditDialogOpen(true)}
+                          onDelete={async () => {
+                            try {
+                              await deletePasswordItem(selectedEntry.id);
+                              router.refresh();
+                              setSelectedEntry(null);
+                              toast.success("Password deleted successfully");
+
+                              const updatedItems = await getItems();
+                              setPasswordItems(updatedItems?.passwordItems);
+                            } catch (error) {
+                              toast.error("Failed to delete password");
+                            }
+                          }}
+                          entry={selectedEntry}
+                        />
+                      )}
+                    </div>
+                  </>
+                );
+
+              case "notes":
+                return (
+                  <>
+                    <div className="w-1/3 overflow-y-auto border-r border-t dark:border-gray-800">
+                      <ScrollArea className="h-full">
+                        <div className="space-y-2 p-4">
+                          <NotesTab
+                            activeTab={activeTab}
+                            selectedNote={selectedNote}
+                            setSelectedNote={setSelectedNote}
+                            notes={filteredAndSortedNotes}
+                            onDelete={handleNoteDelete}
+                          />
+                        </div>
+                      </ScrollArea>
+                    </div>
+                    <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-4 lg:p-6 border-t">
+                      {selectedNote ? (
+                        <NoteDetails
+                          note={selectedNote}
+                          onEdit={async ({ title, content }) => {
+                            if (!clerkUser) return;
+
+                            try {
+                              const {
+                                encryptedData: encryptedTitle,
+                                iv: titleIV,
+                              } = await encrypt(title, clerkUser.id);
+                              const {
+                                encryptedData: encryptedContent,
+                                iv: contentIV,
+                              } = await encrypt(content, clerkUser.id);
+
+                              await updateNoteItem(
+                                selectedNote.id,
+                                encryptedTitle,
+                                encryptedContent,
+                                titleIV,
+                                contentIV
+                              );
+
+                              const updatedItems = await getItems();
+
+                              setNoteItems(updatedItems?.noteItems);
+                              toast.success("Note updated successfully");
+                            } catch (error) {
+                              toast.error("Failed to update note");
+                            }
+                          }}
+                          onDelete={handleNoteDelete}
+                        />
+                      ) : (
+                        <EmptyState activeTab={activeTab} />
+                      )}
+                    </div>
+                  </>
+                );
+
+              default:
+                return <EmptyState activeTab={activeTab} />;
+            }
+          })()}
         </div>
       </div>
 
@@ -370,7 +543,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             router.refresh();
             setSelectedEntry(null);
 
-            const updatedItems = await getPasswords();
+            const updatedItems = await getItems();
             setPasswordItems(updatedItems?.passwordItems);
           }}
           entry={selectedEntry}
@@ -382,10 +555,22 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
         onClose={async () => {
           setIsCreateDialogOpen(false);
 
-          const updatedItems = await getPasswords();
+          const updatedItems = await getItems();
           setPasswordItems(updatedItems?.passwordItems);
         }}
         setSelectedEntry={setSelectedEntry}
+      />
+
+      <CreateNoteDialog
+        open={isCreateNoteDialogOpen}
+        onClose={async () => {
+          setIsCreateNoteDialogOpen(false);
+          const updatedItems = await getItems();
+
+          if (!updatedItems?.noteItems || !clerkUser) return;
+
+          setNoteItems(updatedItems?.noteItems);
+        }}
       />
 
       <ConfirmationDialog
@@ -398,7 +583,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ user }) => {
             setIsDeleting(true);
             try {
               await deletePasswordItem(passwordToDelete.id);
-              const updatedItems = await getPasswords();
+              const updatedItems = await getItems();
               setPasswordItems(updatedItems?.passwordItems);
               if (selectedEntry?.id === passwordToDelete.id) {
                 setSelectedEntry(null);

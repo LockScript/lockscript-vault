@@ -124,6 +124,119 @@ export async function createPasswordItem(
   return newPasswordItem;
 }
 
+export async function updateNoteItem(
+  id: string,
+  newTitle: string,
+  newContent: string,
+  titleIV: string,
+  contentIV: string
+) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prismadb.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      noteItems: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const noteItem = user.noteItems.find((item) => item.id === id);
+
+  if (!noteItem) {
+    throw new Error("Note item not found");
+  }
+
+  const item = await prismadb.noteItem.update({
+    where: {
+      id: noteItem.id,
+    },
+    data: {
+      title: newTitle,
+      content: newContent,
+      titleIV,
+      contentIV,
+    },
+  });
+
+  return item;
+}
+
+export async function deleteNoteItem(id: string) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await prismadb.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      noteItems: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const noteItem = user.noteItems.find((item) => item.id === id);
+
+  if (!noteItem) {
+    throw new Error("Note item not found");
+  }
+
+  await prismadb.noteItem.delete({
+    where: {
+      id: noteItem.id,
+    },
+  });
+
+  return { success: true };
+}
+
+export async function createNoteItem(
+  title: string,
+  content: string,
+  titleIV: string,
+  contentIV: string
+) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("Not authenticated");
+  }
+
+  const newNoteItem = await prismadb.noteItem.create({
+    data: {
+      title,
+      content,
+      titleIV,
+      contentIV,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      user: {
+        connect: {
+          id: userId
+        }
+      }
+    },
+  });
+
+  return newNoteItem;
+}
+
 export async function resetVault() {
   const { userId } = await auth()
 
@@ -186,7 +299,7 @@ export async function instantiateVault(userId: string, username: string) {
   return vault;
 }
 
-export async function getPasswords() {
+export async function getItems() {
   const { userId } = await auth()
 
   if (!userId) {
@@ -215,3 +328,4 @@ export async function getPasswords() {
     },
   });
 }
+

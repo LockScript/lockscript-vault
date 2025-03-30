@@ -1,13 +1,13 @@
 import { VaultPage } from "@/components/vault/vault-page";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { getPasswords, instantiateVault } from "../actions";
+import { getItems, instantiateVault } from "../actions";
 
 export default async function Page() {
   const { userId, redirectToSignIn } = await auth();
 
   if (!userId) return redirectToSignIn();
 
-  const user = await getPasswords();
+  const user = await getItems();
 
   if (!user) {
     const clerkUser = await currentUser();
